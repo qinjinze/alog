@@ -1,4 +1,4 @@
-简体中文:
+**简体中文**:
 
 1.支持在linux、windows终端以及IDEA终端打印彩色日志，其它vscode等没有测试过
 
@@ -35,7 +35,8 @@ cd alog/cmd
 go run main.go   
 
 
-English:
+
+**English**:
 
 1. Supports printing color logs on Linux, Windows, and IDEA terminals, and has not been tested on other vscodes
 
