@@ -66,7 +66,7 @@ If you need to generate a log file or write data to a database, file, or websock
 go get github.com/qinjinze/alog 
 
 or  
-go install github.com/[README.md](https://github.com/qinjinze/alog/blob/main/README.md)qinjinze/alog@latest
+go install github.com/qinjinze/alog@latest
 
 cd alog/cmd
 
