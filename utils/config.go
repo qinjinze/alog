@@ -20,31 +20,28 @@ var (
 	G_mysql_dbname     string //mysql db name
 	G_mysql_dbPassword string //mysql db 密码
 
-	LogsPath string
-
 	DbName   string
 	MqttHost string
 
-	LogPath          string
-	LogName          string
+	TimeFormat  string
+	LogPath     string
+	LogName     string
+	MaxLogLines int
+	MaxLogSize  int64
+
 	ErrorLogPath     string
 	ErrorLogName     string
-	TimeFormat       string
-	LogLevel         string
-	LogSize          string
-	LogBackupCount   string
-	LogDir           string
-	MaxLogLines      int
-	MaxLogSize       int64
 	MaxErrorLogLines int
 	MaxErrorLogSize  int64
+
+	LogLevel       string
+	LogBackupCount string
+	LogDir         string
 )
 
 var IsConsole bool = true
 
 func init() {
-	logger.Info("init model,utils.IsConsole=", IsConsole)
-	//if !IsConsole {
 
 	//从配置文件读取配置信息
 	//如果项目迁移此处需要修改配置文件路径
@@ -67,8 +64,6 @@ func init() {
 	G_mysql_dbname = appconf.String("mysqldbname")
 	G_mysql_dbPassword = appconf.String("mysqlPassword")
 
-	LogsPath = appconf.String("logPath")
-
 	G_redis_dbnum, err = strconv.Atoi(redis_port)
 	if err != nil {
 		logger.Error("strconv.Atoi(redis_port),err=", err)
@@ -77,13 +72,19 @@ func init() {
 	DbName = appconf.String("dbName")
 	MqttHost = appconf.String("mqtthost")
 
+	isConsole := appconf.String("IsConsole")
+	if isConsole == "true" {
+		IsConsole = true
+	}
+
 	LogPath = appconf.String("LogPath")
 	LogName = appconf.String("LogName")
 	ErrorLogPath = appconf.String("ErrorLogPath")
 	ErrorLogName = appconf.String("ErrorLogName")
 	TimeFormat = appconf.String("TimeFormat")
+
 	LogLevel = appconf.String("LogLevel")
-	LogSize = appconf.String("LogSize")
+
 	LogBackupCount = appconf.String("LogBackupCount")
 	LogDir = appconf.String("LogDir")
 	MaxLogLinesStr := appconf.String("MaxLogLines")
@@ -111,4 +112,5 @@ func init() {
 		logger.Error("strconv.ParseInt(MaxErrorLogSize),err=", err)
 		panic("strconv.ParseInt(MaxErrorLogSize, 10, 64),err=")
 	}
+
 }
