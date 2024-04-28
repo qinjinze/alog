@@ -32,7 +32,8 @@ go install github.com/qinjinze/alog@latest
 
 cd alog/cmd
 
-go run main.go
+go run main.go   
+
 
 English:
 
