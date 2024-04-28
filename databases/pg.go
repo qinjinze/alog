@@ -1,5 +1,0 @@
-package databases
-
-func PostgreSql() {
-
-}

@@ -2,165 +2,382 @@ package alog
 
 import (
 	"fmt"
+	"github.com/fatih/color"
 	"time"
 )
 
-//判断是否需要记录该日子
-func enable(logLevel LogLevel) bool {
-	printLevel, _ := parseLogLevel(logData.PrintLevel)
-	return logLevel >= printLevel
-}
+// 非格式化打印日志
+func console(lv int, level, format string, a ...interface{}) {
+	if lv >= Level {
+		now := time.Now().Format(TimeFormat)
+		abc := fmt.Sprintln(a...)
+		msg := fmt.Sprintln(format, abc[:len(abc)-1])
 
-func consoleFormat(lv LogLevel, format string, a ...interface{}) {
-	//fmt.Println("Format  lv==============format==============>", format)
-	if enable(lv) {
-		msg := fmt.Sprintf(format, a...)
-		now := time.Now().Format("2006-01-02 15:04:05")
-		funcName, fileName, lineNo := getInfo(4)
-		fmt.Printf("[%s][%s] [%s=>%s=>%d] %s \n", now, getLogString(lv), fileName, funcName, lineNo, msg)
-		abc := fmt.Sprintf("%s", a...)
-		//fmt.Println("-----------", abc)
-		now = fmt.Sprintf("[%s]", now)
-		leven := fmt.Sprintf("[%s]", getLogString(lv))
-		file := fmt.Sprintf("[%s=>%s=>%d]", fileName, funcName, lineNo)
-		fmt.Printf("%s%s%s%s\n", now, leven, file, format, abc)
+		funcName, fileName, lineNo := getInfo(3)
+
+		fmt.Printf("%s [%s] [%s=>%s:%d] %s", now, level, fileName, funcName, lineNo, msg)
+
 	}
 }
 
+// 未知级别日志
 func Unknown(format string, a ...interface{}) {
-	write(UNKNOWN, format, a...)
+	//console(UNKNOWN, "Unknown", format, a...)
+	if UNKNOWN >= Level {
+		now := time.Now().Format(TimeFormat)
+		abc := fmt.Sprintln(a...)
+		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
+		funcName, fileName, lineNo := getInfo(2)
+		if IsColor {
+			color.Cyan("%s [%s] [%s=>%s:%d] %s", now, "Unknown", fileName, funcName, lineNo, msg)
+		} else {
+			fmt.Printf("%s [%s] [%s=>%s:%d] %s\n", now, "Unknown", fileName, funcName, lineNo, msg)
+		}
+
+	}
 }
 
+// 用户级调试日志
 func Debug(format string, a ...interface{}) {
-	write(DEBUG, format, a...)
+
+	//console(DEBUG, "Debug", format, a...)
+	if DEBUG >= Level {
+		now := time.Now().Format(TimeFormat)
+		abc := fmt.Sprintln(a...)
+		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
+
+		funcName, fileName, lineNo := getInfo(2)
+		if IsColor {
+			color.White("%s [%s] [%s=>%s:%d] %s", now, "Debug", fileName, funcName, lineNo, msg)
+		} else {
+			fmt.Printf("%s [%s] [%s=>%s:%d] %s\n", now, "Debug", fileName, funcName, lineNo, msg)
+		}
+	}
 }
 
+// 用户级信息日志
 func Info(format string, a ...interface{}) {
-	//fmt.Println("format=", format, a)
-	write(INFO, format, a...)
+
+	//console(INFO, "Info", format, a...)
+	if INFO >= Level {
+		now := time.Now().Format(TimeFormat)
+		abc := fmt.Sprintln(a...)
+		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
+		funcName, fileName, lineNo := getInfo(2)
+		if IsColor {
+			color.Blue("%s [%s] [%s=>%s:%d] %s", now, "Info", fileName, funcName, lineNo, msg)
+		} else {
+			fmt.Printf("%s [%s] [%s=>%s:%d] %s\n", now, "Info", fileName, funcName, lineNo, msg)
+		}
+	}
 }
 
+// 用户级警告
 func Warn(format string, a ...interface{}) {
-	write(WARN, format, a...)
+
+	//console(WARN, "Warn", format, a...)
+	if WARN >= Level {
+		now := time.Now().Format(TimeFormat)
+		abc := fmt.Sprintln(a...)
+		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
+
+		funcName, fileName, lineNo := getInfo(2)
+		if IsColor {
+			color.Yellow("%s [%s] [%s=>%s:%d] %s", now, "Warn", fileName, funcName, lineNo, msg)
+		} else {
+			fmt.Printf("%s [%s] [%s=>%s:%d] %s\n", now, "Warn", fileName, funcName, lineNo, msg)
+		}
+	}
 }
 
+// 用户级错误
 func Error(format string, a ...interface{}) {
 
-	write(ERROR, format, a...)
+	//console(ERROR, "Error", format, a...)
+	if ERROR >= Level {
+		now := time.Now().Format(TimeFormat)
+		abc := fmt.Sprintln(a...)
+		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
+
+		funcName, fileName, lineNo := getInfo(2)
+		if IsColor {
+			color.Red("%s [%s] [%s=>%s:%d] %s", now, "Error", fileName, funcName, lineNo, msg)
+		} else {
+			fmt.Printf("%s [%s] [%s=>%s:%d] %s\n", now, "Error", fileName, funcName, lineNo, msg)
+		}
+	}
 }
+
+// 致命错误
 func Fatal(format string, a ...interface{}) {
 
-	write(FATAL, format, a...)
+	//console(FATAL, "Fatal", format, a...)
+	if FATAL >= Level {
+		now := time.Now().Format(TimeFormat)
+		abc := fmt.Sprintln(a...)
+		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
 
+		funcName, fileName, lineNo := getInfo(2)
+		if IsColor {
+
+			color.Magenta("%s [%s] [%s=>%s:%d] %s", now, "Fatal", fileName, funcName, lineNo, msg)
+		} else {
+			fmt.Printf("%s [%s] [%s=>%s:%d] %s\n", now, "Fatal", fileName, funcName, lineNo, msg)
+		}
+	}
 }
 
+// 系统级危险，比如权限出错，访问异常等
 func Crit(format string, a ...interface{}) {
-	write(CRIT, format, a...)
 
+	//console(CRIT, "Crit", format, a...)
+	if CRIT >= Level {
+		now := time.Now().Format(TimeFormat)
+		abc := fmt.Sprintln(a...)
+		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
+
+		funcName, fileName, lineNo := getInfo(2)
+		if IsColor {
+			color.Magenta("%s [%s] [%s=>%s:%d] %s", now, "Crit", fileName, funcName, lineNo, msg)
+		} else {
+			fmt.Printf("%s [%s] [%s=>%s:%d] %s\n", now, "Crit", fileName, funcName, lineNo, msg)
+		}
+	}
 }
+
+// 系统级警告，比如数据库访问异常，配置文件出错等
 func Alrt(format string, a ...interface{}) {
 
-	write(ALRT, format, a...)
+	//console(ALRT, "Alrt", format, a...)
+	if ALRT >= Level {
+		now := time.Now().Format(TimeFormat)
+		abc := fmt.Sprintln(a...)
+		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
 
+		funcName, fileName, lineNo := getInfo(2)
+		if IsColor {
+			color.Magenta("%s [%s] [%s=>%s:%d] %s", now, "Alrt", fileName, funcName, lineNo, msg)
+		} else {
+			fmt.Printf("%s [%s] [%s=>%s:%d] %s\n", now, "Alrt", fileName, funcName, lineNo, msg)
+		}
+	}
 }
+
+// 系统级紧急，比如磁盘出错，内存异常，网络不可用等
 func Emer(format string, a ...interface{}) {
 
-	write(EMER, format, a...)
+	//console(EMER, "Emer", format, a...)
+	if EMER >= Level {
+		now := time.Now().Format(TimeFormat)
+		abc := fmt.Sprintln(a...)
+		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
 
-}
-func Invade(format string, a ...interface{}) {
-	write(INVADE, format, a...)
-
-}
-
-func writeFormat(level LogLevel, format string, a ...interface{}) {
-	//fmt.Println("logDatas.Valve=", logDatas.Valve)
-	switch logDatas.Valve {
-	case "all":
-		writeLogFormat(level, format, a...)
-		consoleFormat(level, format, a...)
-	case "off":
-		consoleFormat(level, format, a...)
-	case "on":
-		writeLogFormat(level, format, a...)
-	default:
-		consoleFormat(level, format, a...)
+		funcName, fileName, lineNo := getInfo(2)
+		if IsColor {
+			color.Magenta("%s [%s] [%s=>%s:%d] %s", now, "Emer", fileName, funcName, lineNo, msg)
+		} else {
+			fmt.Printf("%s [%s] [%s=>%s:%d] %s\n", now, "Emer", fileName, funcName, lineNo, msg)
+		}
 	}
 }
 
-func UnknownF(format string, a ...interface{}) {
-	writeFormat(UNKNOWN, format, a...)
+// 入侵警告
+func Invade(format string, a ...interface{}) {
+
+	//console(INVADE, "Invade", format, a...)
+	if INVADE >= Level {
+		now := time.Now().Format(TimeFormat)
+		abc := fmt.Sprintln(a...)
+		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
+
+		funcName, fileName, lineNo := getInfo(2)
+		if IsColor {
+			color.Green("%s [%s] [%s=>%s:%d] %s", now, "Invade", fileName, funcName, lineNo, msg)
+
+		} else {
+			fmt.Printf("%s [%s] [%s=>%s:%d] %s\n", now, "Invade", fileName, funcName, lineNo, msg)
+		}
+	}
 }
 
-func DebugF(format string, a ...interface{}) {
-	writeFormat(DEBUG, format, a...)
+// 格式化打印日志
+func consoleFormat(lv int, level, format string, a ...interface{}) {
+
+	if lv >= Level {
+		msg := fmt.Sprintf(format, a...)
+		now := time.Now().Format(TimeFormat)
+		funcName, fileName, lineNo := getInfo(3)
+		fmt.Printf("%s [%s] [%s=>%s:%d] %s\n", now, level, fileName, funcName, lineNo, msg)
+
+	}
 }
 
-func InfoF(format string, a ...interface{}) {
-	//fmt.Println("format=", format, a)
-	writeFormat(INFO, format, a...)
+// Unknown Format
+func Uf(format string, a ...interface{}) {
+
+	//consoleFormat(UNKNOWN, "Unknown", format, a...)
+	if UNKNOWN >= Level {
+		msg := fmt.Sprintf(format, a...)
+		now := time.Now().Format(TimeFormat)
+
+		funcName, fileName, lineNo := getInfo(2)
+
+		if IsColor {
+			color.Cyan("%s [%s] [%s=>%s:%d] %s", now, "Unknown", fileName, funcName, lineNo, msg)
+		} else {
+			fmt.Printf("%s [%s] [%s=>%s:%d] %s\n", now, "Unknown", fileName, funcName, lineNo, msg)
+		}
+	}
 }
 
-func WarnF(format string, a ...interface{}) {
-	writeFormat(WARN, format, a...)
+// Debug Format
+func Df(format string, a ...interface{}) {
+
+	//consoleFormat(DEBUG, "Debug", format, a...)
+	if DEBUG >= Level {
+		msg := fmt.Sprintf(format, a...)
+		now := time.Now().Format(TimeFormat)
+
+		funcName, fileName, lineNo := getInfo(2)
+		if IsColor {
+			color.White("%s [%s] [%s=>%s:%d] %s", now, "Debug", fileName, funcName, lineNo, msg)
+		} else {
+			fmt.Printf("%s [%s] [%s=>%s:%d] %s\n", now, "Debug", fileName, funcName, lineNo, msg)
+		}
+	}
 }
 
-func ErrorF(format string, a ...interface{}) {
+// Info Format
+func If(format string, a ...interface{}) {
 
-	writeFormat(ERROR, format, a...)
+	//consoleFormat(INFO, "Info", format, a...)
+	if INFO >= Level {
+		msg := fmt.Sprintf(format, a...)
+		now := time.Now().Format(TimeFormat)
+
+		funcName, fileName, lineNo := getInfo(2)
+		if IsColor {
+			color.Blue("%s [%s] [%s=>%s:%d] %s", now, "Info", fileName, funcName, lineNo, msg)
+		} else {
+			fmt.Printf("%s [%s] [%s=>%s:%d] %s\n", now, "Info", fileName, funcName, lineNo, msg)
+		}
+	}
 }
-func FatalF(format string, a ...interface{}) {
 
-	writeFormat(FATAL, format, a...)
+// Warn Format
+func Wf(format string, a ...interface{}) {
 
+	//consoleFormat(WARN, "Warn", format, a...)
+	if WARN >= Level {
+		msg := fmt.Sprintf(format, a...)
+		now := time.Now().Format(TimeFormat)
+
+		funcName, fileName, lineNo := getInfo(2)
+		if IsColor {
+			color.Yellow("%s [%s] [%s=>%s:%d] %s", now, "Warn", fileName, funcName, lineNo, msg)
+		} else {
+			fmt.Printf("%s [%s] [%s=>%s:%d] %s\n", now, "Warn", fileName, funcName, lineNo, msg)
+		}
+	}
 }
 
-func CritF(format string, a ...interface{}) {
-	writeFormat(CRIT, format, a...)
+// Error Format
+func Errf(format string, a ...interface{}) {
 
+	//consoleFormat(ERROR, "Error", format, a...)
+	if ERROR >= Level {
+		msg := fmt.Sprintf(format, a...)
+		now := time.Now().Format(TimeFormat)
+
+		funcName, fileName, lineNo := getInfo(2)
+		if IsColor {
+			color.Red("%s [%s] [%s=>%s:%d] %s", now, "Error", fileName, funcName, lineNo, msg)
+		} else {
+			fmt.Printf("%s [%s] [%s=>%s:%d] %s\n", now, "Error", fileName, funcName, lineNo, msg)
+		}
+	}
 }
-func AlrtF(format string, a ...interface{}) {
 
-	writeFormat(ALRT, format, a...)
+// Fatal Format
+func Ff(format string, a ...interface{}) {
 
+	//consoleFormat(FATAL, "Fatal", format, a...)
+	if FATAL >= Level {
+		msg := fmt.Sprintf(format, a...)
+		now := time.Now().Format(TimeFormat)
+		funcName, fileName, lineNo := getInfo(2)
+		if IsColor {
+			color.Magenta("%s [%s] [%s=>%s:%d] %s", now, "Fatal", fileName, funcName, lineNo, msg)
+		} else {
+			fmt.Printf("%s [%s] [%s=>%s:%d] %s\n", now, "Fatal", fileName, funcName, lineNo, msg)
+		}
+	}
 }
+
+// Crit Format  系统级危险，比如权限出错，访问异常等
+func Cf(format string, a ...interface{}) {
+
+	//consoleFormat(CRIT, "Crit", format, a...)
+	if CRIT >= Level {
+		msg := fmt.Sprintf(format, a...)
+		now := time.Now().Format(TimeFormat)
+
+		funcName, fileName, lineNo := getInfo(2)
+		if IsColor {
+			color.Magenta("%s [%s] [%s=>%s:%d] %s", now, "Crit", fileName, funcName, lineNo, msg)
+		} else {
+			fmt.Printf("%s [%s] [%s=>%s:%d] %s\n", now, "Crit", fileName, funcName, lineNo, msg)
+		}
+	}
+}
+
+// Alrt Format  系统级警告，比如数据库访问异常，配置文件出错等
+func Af(format string, a ...interface{}) {
+
+	//consoleFormat(ALRT, "Alrt", format, a...)
+	if ALRT >= Level {
+		msg := fmt.Sprintf(format, a...)
+		now := time.Now().Format(TimeFormat)
+
+		funcName, fileName, lineNo := getInfo(2)
+		if IsColor {
+			color.Magenta("%s [%s] [%s=>%s:%d] %s", now, "Alrt", fileName, funcName, lineNo, msg)
+		} else {
+			fmt.Printf("%s [%s] [%s=>%s:%d] %s\n", now, "Alrt", fileName, funcName, lineNo, msg)
+		}
+	}
+}
+
+// 系统级紧急，比如磁盘出错，内存异常，网络不可用等
 func EmerF(format string, a ...interface{}) {
 
-	writeFormat(EMER, format, a...)
+	//consoleFormat(EMER, "Emer", format, a...)
+	if EMER >= Level {
+		msg := fmt.Sprintf(format, a...)
+		now := time.Now().Format(TimeFormat)
 
-}
-func InvadeF(format string, a ...interface{}) {
-	writeFormat(INVADE, format, a...)
-
-}
-
-func write(level LogLevel, format string, a ...interface{}) {
-	//fmt.Println("logDatas.Valve=", logDatas.Valve)
-	switch logDatas.Valve {
-	case "all":
-		writeLog(level, format, a...)
-		console(level, format, a...)
-	case "off":
-		console(level, format, a...)
-	case "on":
-		writeLog(level, format, a...)
-	default:
-		console(level, format, a...)
+		funcName, fileName, lineNo := getInfo(2)
+		if IsColor {
+			color.Magenta("%s [%s] [%s=>%s:%d] %s", now, "Emer", fileName, funcName, lineNo, msg)
+		} else {
+			fmt.Printf("%s [%s] [%s=>%s:%d] %s\n", now, "Emer", fileName, funcName, lineNo, msg)
+		}
 	}
 }
 
-func console(lv LogLevel, format string, a ...interface{}) {
-	//fmt.Println("lv============================>", format)
-	if enable(lv) {
-		now := time.Now().Format("2006-01-02 15:04:05")
-		abc := fmt.Sprintln(a...)
-		///	fmt.Println("-----------", abc)
-		now = fmt.Sprintf("[%s]", now)
-		leven := fmt.Sprintf("[%s]", getLogString(lv))
-		funcName, fileName, lineNo := getInfo(4)
-		file := fmt.Sprintf("[%s=>%s=>%d]", fileName, funcName, lineNo)
-		fileLog := fmt.Sprintf("%s%s%s%s", now, leven, file, format)
-		//log := fmt.Sprintln(fileLog, abc)
-		fmt.Printf("%s %s", fileLog, abc)
+// Invade Format，入侵警告
+func InvadeF(format string, a ...interface{}) {
+
+	//consoleFormat(INVADE, "Invade", format, a...)
+	if INVADE >= Level {
+		msg := fmt.Sprintf(format, a...)
+		now := time.Now().Format(TimeFormat)
+
+		funcName, fileName, lineNo := getInfo(2)
+		if IsColor {
+			color.Green("%s [%s] [%s=>%s:%d] %s", now, "Invade", fileName, funcName, lineNo, msg)
+		} else {
+			fmt.Printf("%s [%s] [%s=>%s:%d] %s\n", now, "Invade", fileName, funcName, lineNo, msg)
+		}
 	}
 }
