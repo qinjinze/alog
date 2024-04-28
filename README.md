@@ -27,7 +27,7 @@
 | 10  | INVADE  | 黑客入侵                     | 绿色    |
 
 go get github.com/qinjinze/alog  
-或
+或  
 go install github.com/qinjinze/alog@latest
 
 cd alog/cmd
