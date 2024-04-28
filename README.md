@@ -61,3 +61,12 @@ If you need to generate a log file or write data to a database, file, or websock
 | 8     | ALRT          | System level<br> warnings, such as abnormal database access, configuration file errors, etc          | Pink       |
 | 9     | EMER          | System level<br> emergencies, such as disk errors, memory anomalies, network unavailability,<br> etc | Pink       |
 | 10    | INVADE        | Hacker intrusion                                                                                     | green      |
+
+go get github.com/qinjinze/alog 
+
+or  
+go install github.com/[README.md](https://github.com/qinjinze/alog/blob/main/README.md)qinjinze/alog@latest
+
+cd alog/cmd
+
+go run main.go
