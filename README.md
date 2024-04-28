@@ -29,13 +29,11 @@
 go get github.com/qinjinze/alog
 
  或
-go install github.com/[README.md](README.md)qinjinze/alog@latest
+go install github.com/qinjinze/alog@latest
 
 cd alog/cmd
 
 go run main.go
-
-
 
 English:
 
