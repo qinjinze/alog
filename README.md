@@ -27,12 +27,15 @@
 | 10  | INVADE  | 黑客入侵                     | 绿色    |
 
 go get github.com/qinjinze/alog
-or  
+
+ 或
 go install github.com/[README.md](README.md)qinjinze/alog@latest
 
 cd alog/cmd
 
 go run main.go
+
+
 
 English:
 
