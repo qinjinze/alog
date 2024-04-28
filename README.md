@@ -26,7 +26,7 @@
 | 9   | EMER    | 系统级紧急，比如磁盘出错，内存异常，网络不可用等 | 粉色    |
 | 10  | INVADE  | 黑客入侵                     | 绿色    |
 
-go get github.com/qinjinze/alog
+go get github.com/qinjinze/alog  
 或
 go install github.com/qinjinze/alog@latest
 
@@ -62,7 +62,7 @@ If you need to generate a log file or write data to a database, file, or websock
 | 9     | EMER          | System level<br> emergencies, such as disk errors, memory anomalies, network unavailability,<br> etc | Pink       |
 | 10    | INVADE        | Hacker intrusion                                                                                     | green      |
 
-go get github.com/qinjinze/alog 
+go get github.com/qinjinze/alog   
 or  
 go install github.com/qinjinze/alog@latest
 
