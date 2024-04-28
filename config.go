@@ -1,105 +1,50 @@
 package alog
 
 import (
-	"fmt"
 	//json "github.com/json-iterator/go"
-	"encoding/json"
-	"github.com/liquidMetal/file"
-	"strconv"
+	_ "github.com/alog/model"
 )
 
-type Log struct {
-	//[log]
-	//#如果以下不知道如何填写默认即可
-	//#on表示日志只输出到log文件，off日志输出到控制台，all表示日志输出到日志文件和控制台
-	Valve string
-	//#日志存储路径和名字
-	TimeFormat string
-	//#最终输出日志打印为 print20201103-150405.log
-	FilePath   string
-	FileName   string
-	PrintLevel string
-	//#最终输出错误日志为 error20201103-150405.log
-	ErrorFilePath string
-	ErrorFileName string
-	//#大于等于error
-	PrintErrorLevel string
-	//#通道最大容量
-	ChanMaxSize int64
-	//文件最大尺寸
-	MaxFileSize int64
-	test        int64
-}
+var TimeFormat string = "2006-01-02 15:04:05"
+var Level int = 0
 
-/*
-type Element struct {
-	Debug   string
-	Trace   string
-	Info    string
-	Warn    string
-	Error   string
-	Fatal   string
-	Crit    string
-	Alrt    string
-	Emer    string
-	Invade  string
-	Unknown string
-}*/
-
-var logData Log
+var IsTrace bool = false
+var TraceIdList []string = []string{}
+var IsColor bool = true
 
 //var ele *Element
 
-func init() {
-	//fmt.Println("=========================start")
-	//返回切片
-	filePath := "./conf/config.conf"
-	msg, err := file.ReadFile(filePath, "")
-	if err != nil {
-		fmt.Println("File read failed. err=", err)
-	}
-	//fmt.Println("msg=", msg)
-	//设计思路：主要用于配置文件经常变动场景，例如：接口类型的通信，双方未来都不知道未来配置有什么变化，只需要修改配置文件，不需要修改程序，把程序重新运行即可
-	//如果开启一个协程周期性的比较文件修改时间，如果有变化则重新读取一次文件，连重行运行程序都不需要
-	//因为不用像传统那样传递key才能取到值，当然也能兼容传统类型，通过传递键取值
+type LogConfig struct {
+	IsConsole        bool   `json:"IsConsole"`        // 是否输出到控制台
+	TimeFormat       string `json:"TimeFormat"`       // 控制台日志输出时间格式
+	Level            string `json:"Level"`            // 控制台日志输出等级
+	LevelInt         int    `json:"LevelInt"`         // 控制台日志输出等级
+	Color            bool   `json:"Color"`            // 控制台日志颜色开关
+	IsFile           bool   `json:"IsFile"`           // 是否输出到文件   如果开启后没有输入相关对应值，则按默认值
+	LogName          string `json:"FileName"`         // 初始日志文件名  	//输出日志打印为 log20201103-150405.log
+	LogPath          string `json:"FilePath"`         // 初始日志文件路径 默认当前目录：./
+	LogDaily         bool   `json:"Daily"`            // 是否按天生成日志文件
+	MaxLogLines      int    `json:"Maxlines"`         // 日志文件最大行数      默认1000000 即100万
+	MaxLogSize       int64  `json:"MaxFilesize"`      // 日志文件最大尺寸,单位MB,当文件打开超过这个尺寸时，会重新创建一个日志文件，默认512MB
+	MaxFileDays      int    `json:"Maxdays"`          // 日志文件最大天数
+	LogZip           bool   `json:"LogZip"`           // 是否压缩成zip格式文件
+	IsError          bool   `json:"IsError"`          // 是否输出到错误日志文件 ，如果开启后没有输入相关对应值，则按默认值
+	ErrorLogPath     string `json:"ErrorFilePath"`    // 初始日志文件路径   默认当前目录：./
+	ErrorLogName     string `json:"ErrorFileName"`    // 初始日志文件路径 //输出错误日志为 error20201103-150405.log
+	ErrorDaily       bool   `json:"ErrorDaily"`       // 是否按天生成日志文件
+	MaxErrorLogLines int    `json:"MaxErrorLogLines"` // 日志文件最大行数          默认100000即10万
+	MaxErrorLogSize  int64  `json:"MaxErrorLogSize"`  // 日志文件最大尺寸,单位MB,当文件打开超过这个尺寸时，会重新创建一个日志文件 默认10M
+	ErrorLogZip      bool   `json:"ErrorLogZip"`      // 是否压缩成zip格式文件
+	Permit           string `json:"Permit"`           // 新创建的日志文件权限属性
+	SaveDbType       string `json:"SaveDbType"`       //日志保存类型保存：配置文件：mysql,redis,mongodb,postgresql,sqlite3,oracle,sqlserver,etcd
+	LogType          string `json:"LogType"`          //用户日志还是管理平台日志 ：user,platform、device
+	UserName         string `json:"UserName"`         //用户账号
+	RequestId        string `json:"RequestId"`        //本次请求的唯一标识，即本次请求id，用于追踪请求日志
+	Page             string `json:"Page"`             //请求页面
+	Api              string `json:"Api"`              //请求接口
+	Function         string `json:"Function"`         //记录函数名或者日志功能
+	Seller           string `json:"Seller"`           //商家名称
+	SellerId         string `json:"SellerId"`         //商家id
+	Token            string `json:"Token"`            //用户token
 
-	for _, v := range msg {
-		//fmt.Printf("sn=%d\t topic=%s\t key=%s\t value= %s\n", k, v.Topic, v.Key, v.Value)
-		if v.Topic == "log" {
-			switch v.Key {
-			case "valve":
-				logData.Valve = v.Value
-			case "timeFormat":
-				logData.TimeFormat = v.Value
-			case "filePath":
-				logData.FilePath = v.Value
-			case "fileName":
-				logData.FileName = v.Value
-			case "printLevel":
-				logData.PrintLevel = v.Value
-			case "errorFilePath":
-				logData.ErrorFilePath = v.Value
-			case "errorFileName":
-				logData.ErrorFileName = v.Value
-			case "printErrorLevel":
-				logData.PrintErrorLevel = v.Value
-			case "chanMaxSize":
-				logData.ChanMaxSize, err = strconv.ParseInt(v.Value, 10, 64)
-				//fmt.Println("err=", err)
-			case "maxFileSize":
-				logData.MaxFileSize, err = strconv.ParseInt(v.Value, 10, 64)
-				//fmt.Println("err=", err)
-			}
-
-		}
-	}
-
-	jsonFormat, err := json.Marshal(logData)
-	fmt.Println("配置读取完毕，JSON格式！==>End of reading", string(jsonFormat))
-	//	fmt.Println("配置读取完毕，返回结构体！==>End of reading", logData)
-
-}
-
-func Config() Log {
-	return logData
 }
