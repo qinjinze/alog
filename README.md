@@ -36,6 +36,8 @@ go run main.go
 
 
 
+   
+
 **English**:
 
 1. Supports printing color logs on Linux, Windows, and IDEA terminals, and has not been tested on other vscodes
