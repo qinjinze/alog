@@ -71,8 +71,8 @@ var isWebsocket = true
 // 根据指定的日志文件路径和文件名打开日志文件
 func (config *LogConfig) InitLogConfig() error {
 	logger.Info("InitLogConfig初始化日志数据，config=%+v", config)
+	model.InitModel(config.DbUserName, config.DbPassword, config.DbHost, config.DbPort, config.DbName)
 	var err error
-
 	if config.IsFile {
 		if utils.MaxLogSize != 0 {
 			config.MaxLogSize = utils.MaxLogSize * 1024 * 1024

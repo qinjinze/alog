@@ -1,4 +1,4 @@
-####**简体中文**:
+**简体中文**:
 
 1.支持在linux、windows终端以及IDEA终端打印彩色日志，其它vscode等没有测试过
 
@@ -26,6 +26,19 @@
 | 9   | EMER    | 系统级紧急，比如磁盘出错，内存异常，网络不可用等 | 粉色    |
 | 10  | INVADE  | 黑客入侵                     | 绿色    |
 
+linux终端：
+
+![linux终端](http://150.158.34.122/image/linux.png)
+
+windows终端：
+
+![windows终端](http://150.158.34.122/image/windows.png)
+
+IDEA终端：
+
+![IDEA终端](http://150.158.34.122/image/idea.png)
+
+
 go get github.com/qinjinze/alog  
 或  
 go install github.com/qinjinze/alog@latest
@@ -36,7 +49,7 @@ go run main.go
    
 <br>
                  
-####**English**:
+**English**:
 
 1. Supports printing color logs on Linux, Windows, and IDEA terminals, and has not been tested on other vscodes
 
@@ -51,17 +64,17 @@ If you need to generate a log file or write data to a database, file, or websock
 5. Log level configuration
 
 | Level | Configuration | Definition                                                                                           | Color      |
-| ----- | ------------- | ---------------------------------------------------------------------------------------------------- | ---------- |
+| ----- | ------------- |------------------------------------------------------------------------------------------------------| ---------- |
 | 0     | UNKNOWN       | unknown                                                                                              | Green blue |
-| 1     | TRACE         | User level basic output                                                                          | Grey white |
+| 1     | TRACE         | User level basic output                                                                              | Grey white |
 | 2     | DEBG          | User level debugging                                                                                 | Grey white |
 | 3     | INFO          | User level importance                                                                                | Sky blue   |
 | 4     | WARN          | User level warning                                                                                   | yellow     |
 | 5     | EROR          | User level error                                                                                     | red        |
-| 6     | FATAL         | User level basic output                                                                          | Pink       |
-| 7     | CRIT          | System level hazards, such as permission errors, abnormal access, etc                            | Pink       |
-| 8     | ALRT          | System level warnings, such as abnormal database access, configuration file errors, etc          | Pink       |
-| 9     | EMER          | System level emergencies, such as disk errors, memory anomalies, network unavailability, etc | Pink       |
+| 6     | FATAL         | User level basic output                                                                              | Pink       |
+| 7     | CRIT          | System level hazards,<br> such as permission errors, abnormal access, etc                            | Pink       |
+| 8     | ALRT          | System level<br> warnings, such as abnormal database access, configuration file errors, etc          | Pink       |
+| 9     | EMER          | System level<br> emergencies, such as disk errors, memory anomalies, network unavailability,etc | Pink       |
 | 10    | INVADE        | Hacker intrusion                                                                                     | green      |
 
 go get github.com/qinjinze/alog   

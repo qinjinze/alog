@@ -17,7 +17,7 @@ var (
 	G_redis_password   string //redis db 密码
 	G_mysql_addr       string //mysql ip 地址
 	G_mysql_port       string //mysql 端口
-	G_mysql_dbname     string //mysql db name
+	G_mysql_dbUserName string //mysql db name
 	G_mysql_dbPassword string //mysql db 密码
 
 	DbName   string
@@ -41,7 +41,7 @@ var (
 
 var IsConsole bool = true
 
-func init() {
+func InitinitConfigFile() {
 
 	//从配置文件读取配置信息
 	//如果项目迁移此处需要修改配置文件路径
@@ -61,7 +61,7 @@ func init() {
 	G_redis_password = appconf.String("password")
 	G_mysql_addr = appconf.String("mysqladdr")
 	G_mysql_port = appconf.String("mysqlport")
-	G_mysql_dbname = appconf.String("mysqldbname")
+	G_mysql_dbUserName = appconf.String("dbUserName")
 	G_mysql_dbPassword = appconf.String("mysqlPassword")
 
 	G_redis_dbnum, err = strconv.Atoi(redis_port)
