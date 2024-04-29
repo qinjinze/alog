@@ -273,7 +273,7 @@ func spiteFile(file *os.File, filePath string) (*os.File, error) {
 	//需要切割日志文件
 
 	//1、备份一下
-	nowStr := time.Now().Format("20060102-150405") //2006-04-05 15:04:05 +000最后三位为毫秒
+	nowStr := time.Now().Format("20060102-150405")
 	fileInfo, err := file.Stat()
 	if err != nil {
 		logger.Error("get file failed,err=", err)
@@ -326,7 +326,7 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 		}
 		logDbList.UserLog = append(logDbList.UserLog, message)
 		logDbList.LogConfigInfo = config
-		logger.Info("UserLog=", len(logDbList.UserLog))
+
 		if IsTrace {
 			for _, s := range TraceIdList {
 				if s == message.UserName {
@@ -360,7 +360,7 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 
 		logDbList.PlatformLog = append(logDbList.PlatformLog, message)
 		logDbList.LogConfigInfo = config
-		logger.Info("logList=", len(logDbList.PlatformLog))
+
 		if IsTrace {
 			for _, s := range TraceIdList {
 				if s == message.UserName {
@@ -403,7 +403,6 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 
 		logDbList.DeviceLog = append(logDbList.DeviceLog, message)
 		logDbList.LogConfigInfo = config
-		logger.Info("logList=", len(logDbList.DeviceLog))
 
 		if (config.IsFile || config.IsError) && !isDbAndFile {
 			logFileList.DeviceLog = append(logFileList.DeviceLog, message)
