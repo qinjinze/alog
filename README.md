@@ -1,16 +1,16 @@
-简体中文:
+####**简体中文**:
 
-1、支持在linux、windows终端以及IDEA终端打印彩色日志，其它vscode等没有测试过
+1.支持在linux、windows终端以及IDEA终端打印彩色日志，其它vscode等没有测试过
 
-2、实现日志写入数据库，这里实现的写入mysql,postgresql，对中大型项目不推荐使mysql存储日志，下一个版本会增加写入ES数据库
+2.实现日志写入数据库，这里实现的写入mysql,postgresql，对中大型项目不推荐使mysql存储日志，下一个版本会增加写入ES数据库
 
-3、实现写入文件根据大小和写入日志行数进行切割，可以自定如果不自定会使用默认参数
+3.实现写入文件根据大小和写入日志行数进行切割，可以自定如果不自定会使用默认参数
 
-4、并且实现websocket实时跟踪某个用户或者设备日志，web客户端需要自己实现，如有需求本人也可以提供
+4.并且实现websocket实时跟踪某个用户或者设备日志，web客户端需要自己实现，如有需求本人也可以提供
 
 如果需要生成日志文件或者把数据写入数据库、文件、websocket发送到客户端，需要将配置文件复制到自己项目中，配置文件目前位于alog/conf/app.conf
 
-5 日志等级配置
+5.日志等级配置
 
 | 等级  | 配置      | 释义                       | 控制台颜色 |
 | --- | ------- | ------------------------ | ----- |
@@ -26,15 +26,17 @@
 | 9   | EMER    | 系统级紧急，比如磁盘出错，内存异常，网络不可用等 | 粉色    |
 | 10  | INVADE  | 黑客入侵                     | 绿色    |
 
-go get github.com/qinjinze/alog
-or  
+go get github.com/qinjinze/alog  
+或  
 go install github.com/qinjinze/alog@latest
 
 cd alog/cmd
 
-go run main.go
-
-English:
+go run main.go              
+   
+<br>
+                 
+####**English**:
 
 1. Supports printing color logs on Linux, Windows, and IDEA terminals, and has not been tested on other vscodes
 
@@ -46,12 +48,12 @@ English:
 
 If you need to generate a log file or write data to a database, file, or websocket to send to the client, you need to copy the configuration file to your own project. The configuration file is currently located in the directory/conf/app. conf
 
-5 Log level configuration
+5. Log level configuration
 
 | Level | Configuration | Definition                                                                                           | Color      |
 | ----- | ------------- | ---------------------------------------------------------------------------------------------------- | ---------- |
 | 0     | UNKNOWN       | unknown                                                                                              | Green blue |
-| 1     | TRACE         | User level basic<br> output                                                                          | Grey white |
+| 1     | TRACE         | User level basic output                                                                          | Grey white |
 | 2     | DEBG          | User level debugging                                                                                 | Grey white |
 | 3     | INFO          | User level importance                                                                                | Sky blue   |
 | 4     | WARN          | User level warning                                                                                   | yellow     |
@@ -61,3 +63,11 @@ If you need to generate a log file or write data to a database, file, or websock
 | 8     | ALRT          | System level<br> warnings, such as abnormal database access, configuration file errors, etc          | Pink       |
 | 9     | EMER          | System level<br> emergencies, such as disk errors, memory anomalies, network unavailability,<br> etc | Pink       |
 | 10    | INVADE        | Hacker intrusion                                                                                     | green      |
+
+go get github.com/qinjinze/alog   
+or  
+go install github.com/qinjinze/alog@latest
+
+cd alog/cmd
+
+go run main.go
