@@ -1,4 +1,4 @@
-**简体中文**:
+####**简体中文**:
 
 1.支持在linux、windows终端以及IDEA终端打印彩色日志，其它vscode等没有测试过
 
@@ -32,13 +32,11 @@ go install github.com/qinjinze/alog@latest
 
 cd alog/cmd
 
-go run main.go   
-
-
-
+go run main.go              
    
-
-**English**:
+<br>
+                 
+####**English**:
 
 1. Supports printing color logs on Linux, Windows, and IDEA terminals, and has not been tested on other vscodes
 
@@ -55,7 +53,7 @@ If you need to generate a log file or write data to a database, file, or websock
 | Level | Configuration | Definition                                                                                           | Color      |
 | ----- | ------------- | ---------------------------------------------------------------------------------------------------- | ---------- |
 | 0     | UNKNOWN       | unknown                                                                                              | Green blue |
-| 1     | TRACE         | User level basic<br> output                                                                          | Grey white |
+| 1     | TRACE         | User level basic output                                                                          | Grey white |
 | 2     | DEBG          | User level debugging                                                                                 | Grey white |
 | 3     | INFO          | User level importance                                                                                | Sky blue   |
 | 4     | WARN          | User level warning                                                                                   | yellow     |
