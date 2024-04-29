@@ -17,12 +17,11 @@ type DeviceLog struct {
 	LevelInt   int       `orm:"size(2);NULL;description(日志等级)" json:"LevelInt" gorm:"comment:日志等级"`             //
 	Function   string    `orm:"size(100);NULL;description(功能模块)" json:"Function" gorm:"comment:功能模块"`           //
 	RequestId  string    `orm:"size(30);NULL;description(每次请求的唯一id)" json:"RequestId" gorm:"comment:每次请求的唯一id"` //
-	Token      string    `orm:"size(255);NULL;description(用户登录唯一id)" json:"Token" gorm:"comment:用户登录唯一id"`      //
-	UserName   string    `orm:"size(255);NULL;description(设备唯一id)" json:"UserName" gorm:"comment:设备唯一id"`         //
-	Content    string    `orm:"size(255);NULL;description(日志内容)" json:"Content" gorm:"comment:用户登录唯一id"`        //
+	Token      string    `orm:"size(255);NULL;description(设备登录Token)" json:"Token" gorm:"comment:设备登录Token"`      //
+	UserName   string    `orm:"size(255);NULL;description(设备唯一id或登录名)" json:"UserName" gorm:"comment:设备唯一id或登录名"`         //
+	Content    string    `orm:"size(255);NULL;description(日志内容)" json:"Content" gorm:"comment:日志内容"`        //
 	LogTime    time.Time `orm:"size(15);NULL;description(日志生成时间)" json:"LogTime" gorm:"comment:日志生成时间"`
 	CreateTime time.Time `orm:"size(6);auto_now_add;type(datetime);NULL;description(插入表中时间)" json:"CreateTime" gorm:"autoCreateTime;comment:插入表中时间"`
-
 }
 
 // 管理后台日志
@@ -32,9 +31,9 @@ type PlatformLog struct {
 	LevelInt   int       `orm:"size(2);NULL;description(日志等级)" json:"LevelInt" gorm:"comment:日志等级"`             //
 	Function   string    `orm:"size(100);NULL;description(功能模块)" json:"Function" gorm:"comment:功能模块"`           //
 	RequestId  string    `orm:"size(30);NULL;description(每次请求的唯一id)" json:"RequestId" gorm:"comment:每次请求的唯一id"` //
-	Token      string    `orm:"size(255);NULL;description(用户登录唯一id)" json:"Token" gorm:"comment:用户登录唯一id"`      //
+	Token      string    `orm:"size(255);NULL;description(用户登录Token)" json:"Token" gorm:"comment:用户登录Token"`      //
 	UserName   string    `orm:"size(255);NULL;description(账户)" json:"UserName" gorm:"comment:用户登录唯一id"`         //
-	Content    string    `orm:"size(255);NULL;description(日志内容)" json:"Content" gorm:"comment:用户登录唯一id"`        //
+	Content    string    `orm:"size(255);NULL;description(日志内容)" json:"Content" gorm:"comment:日志内容"`        //
 	LogTime    time.Time `orm:"size(15);NULL;description(日志生成时间)" json:"LogTime" gorm:"comment:日志生成时间"`
 	CreateTime time.Time `orm:"size(6);auto_now_add;type(datetime);NULL;description(插入表中时间)" json:"CreateTime" gorm:"autoCreateTime;comment:插入表中时间"`
 }
@@ -46,13 +45,11 @@ type UserLog struct {
 	LevelInt   int       `orm:"size(2);NULL;description(日志等级)" json:"LevelInt" gorm:"comment:日志等级"`             //
 	Function   string    `orm:"size(100);NULL;description(功能模块)" json:"Function" gorm:"comment:功能模块"`           //
 	RequestId  string    `orm:"size(30);NULL;description(每次请求的唯一id)" json:"RequestId" gorm:"comment:每次请求的唯一id"` //
-	Token      string    `orm:"size(255);NULL;description(用户登录唯一id)" json:"Token" gorm:"comment:用户登录唯一id"`      //
+	Token      string    `orm:"size(255);NULL;description(用户登录Token)" json:"Token" gorm:"comment:用户登录Token"`      //
 	UserName   string    `orm:"size(255);NULL;description(账户)" json:"UserName" gorm:"comment:用户登录唯一id"`         //
-	Content    string    `orm:"size(255);NULL;description(日志内容)" json:"Content" gorm:"comment:用户登录唯一id"`        //
+	Content    string    `orm:"size(255);NULL;description(日志内容)" json:"Content" gorm:"comment:日志内容"`        //
 	LogTime    time.Time `orm:"size(15);NULL;description(日志生成时间)" json:"LogTime" gorm:"comment:日志生成时间"`
 	CreateTime time.Time `orm:"size(6);auto_now_add;type(datetime);NULL;description(插入表中时间)" json:"CreateTime" gorm:"autoCreateTime;comment:插入表中时间"`
-
-
 }
 
 var Db *gorm.DB
