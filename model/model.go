@@ -54,37 +54,53 @@ type UserLog struct {
 
 var Db *gorm.DB
 
-func init() {
-	if !utils.IsConsole {
-		var err error
-		dsn := utils.G_mysql_dbname + ":" + utils.G_mysql_dbPassword + "@tcp(" + utils.G_mysql_addr + ":" + utils.G_mysql_port + ")/" + utils.DbName + "?charset=utf8mb4&parseTime=True&loc=Local"
-		Db, err = gorm.Open(mysql.New(mysql.Config{
-			DSN:                       dsn,   // DSN data source name
-			DefaultStringSize:         256,   // string 类型字段的默认长度
-			DisableDatetimePrecision:  true,  // 禁用 datetime 精度，MySQL 5.6 之前的数据库不支持
-			DontSupportRenameIndex:    true,  // 重命名索引时采用删除并新建的方式，MySQL 5.7 之前的数据库和 MariaDB 不支持重命名索引
-			DontSupportRenameColumn:   true,  // 用 `change` 重命名列，MySQL 8 之前的数据库和 MariaDB 不支持重命名列
-			SkipInitializeWithVersion: false, // 根据当前 MySQL 版本自动配置
-		}), &gorm.Config{})
-		if err != nil {
-			panic("数据库连接失败，err=" + err.Error())
-			return
-		}
-
-		//连接成功
-		sqlDB, err := Db.DB()
-		if err != nil {
-			logger.Fatal("数据库关闭失败", err)
-			panic("数据库连接失败，err=" + err.Error())
-			return
-		}
-		sqlDB.SetMaxIdleConns(30)    //设置连接池，空闲
-		sqlDB.SetMaxOpenConns(10000) //设置打开最大连接
-
-		// 迁移 schema ，自动创建表结构
-		err = Db.AutoMigrate(&DeviceLog{}, &PlatformLog{}, &UserLog{})
-		if err != nil {
-			logger.Error("数据库迁移失败", err)
-		}
+func InitModel(dbUserName, dbPassword, dbAddr, dbPort, dbName string) {
+	utils.InitinitConfigFile()
+	if utils.G_mysql_dbUserName == "" {
+		utils.G_mysql_dbUserName = dbUserName
 	}
+	if utils.G_mysql_dbPassword == "" {
+		utils.G_mysql_dbPassword = dbPassword
+	}
+	if utils.G_mysql_addr == "" {
+		utils.G_mysql_addr = dbAddr
+	}
+	if utils.G_mysql_port == "" {
+		utils.G_mysql_port = dbPort
+	}
+	if utils.DbName == "" {
+		utils.DbName = dbName
+	}
+	logger.Info("数据库连接信息：", utils.G_mysql_dbUserName, utils.G_mysql_dbPassword, utils.G_mysql_addr, utils.G_mysql_port, utils.DbName)
+	var err error
+	dsn := utils.G_mysql_dbUserName + ":" + utils.G_mysql_dbPassword + "@tcp(" + utils.G_mysql_addr + ":" + utils.G_mysql_port + ")/" + utils.DbName + "?charset=utf8mb4&parseTime=True&loc=Local"
+	Db, err = gorm.Open(mysql.New(mysql.Config{
+		DSN:                       dsn,   // DSN data source name
+		DefaultStringSize:         256,   // string 类型字段的默认长度
+		DisableDatetimePrecision:  true,  // 禁用 datetime 精度，MySQL 5.6 之前的数据库不支持
+		DontSupportRenameIndex:    true,  // 重命名索引时采用删除并新建的方式，MySQL 5.7 之前的数据库和 MariaDB 不支持重命名索引
+		DontSupportRenameColumn:   true,  // 用 `change` 重命名列，MySQL 8 之前的数据库和 MariaDB 不支持重命名列
+		SkipInitializeWithVersion: false, // 根据当前 MySQL 版本自动配置
+	}), &gorm.Config{})
+	if err != nil {
+		panic("数据库连接失败，err=" + err.Error())
+		return
+	}
+
+	//连接成功
+	sqlDB, err := Db.DB()
+	if err != nil {
+		logger.Fatal("数据库关闭失败", err)
+		panic("数据库连接失败，err=" + err.Error())
+		return
+	}
+	sqlDB.SetMaxIdleConns(30)    //设置连接池，空闲
+	sqlDB.SetMaxOpenConns(10000) //设置打开最大连接
+
+	// 迁移 schema ，自动创建表结构
+	err = Db.AutoMigrate(&DeviceLog{}, &PlatformLog{}, &UserLog{})
+	if err != nil {
+		logger.Error("数据库迁移失败", err)
+	}
+
 }
