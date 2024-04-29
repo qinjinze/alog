@@ -1,4 +1,5 @@
-**简体中文**:
+**简体中文**:  
+以往日志库总有这样那样痛点，所以自己写了个日志库，希望能帮到大家。
 
 1.支持在linux、windows终端以及IDEA终端打印彩色日志，其它vscode等没有测试过
 
@@ -52,7 +53,8 @@ go run main.go
    
 <br>
                  
-**English**:
+**English**:  
+There have always been pain points in the past, so I wrote a log library myself, hoping to help everyone.
 
 1. Supports printing color logs on Linux, Windows, and IDEA terminals, and has not been tested on other vscodes
 
