@@ -73,6 +73,7 @@ func (config *LogConfig) InitLogConfig() error {
 	logger.Info("InitLogConfig初始化日志数据，config=%+v", config)
 	model.InitModel(config.DbUserName, config.DbPassword, config.DbHost, config.DbPort, config.DbName)
 	var err error
+
 	if config.IsFile {
 		if utils.MaxLogSize != 0 {
 			config.MaxLogSize = utils.MaxLogSize * 1024 * 1024
@@ -321,8 +322,6 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 			Content:   msg,
 			LogTime:   time.Now(),
 			//CreateTime:config
-			Seller:   config.Seller,
-			SellerId: config.SellerId,
 		}
 		logDbList.UserLog = append(logDbList.UserLog, message)
 		logDbList.LogConfigInfo = config
@@ -354,8 +353,7 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 			Content:   msg,
 			LogTime:   time.Now(),
 			//CreateTime:config
-			Seller:   config.Seller,
-			SellerId: config.SellerId,
+
 		}
 
 		logDbList.PlatformLog = append(logDbList.PlatformLog, message)
@@ -386,8 +384,7 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 			Content:   msg,
 			LogTime:   time.Now(),
 			//CreateTime:config
-			Seller:   config.Seller,
-			SellerId: config.SellerId,
+
 		}
 
 		if IsTrace {
@@ -419,8 +416,7 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 			Content:   msg,
 			LogTime:   time.Now(),
 			//CreateTime:config
-			Seller:   config.Seller,
-			SellerId: config.SellerId,
+
 		}
 
 		if IsTrace {
