@@ -1,4 +1,5 @@
 **简体中文**:
+以往日志库总有这样那样痛点，所以自己写了个日志库，希望能帮到大家。
 
 1.支持在linux、windows终端以及IDEA终端打印彩色日志，其它vscode等没有测试过
 
@@ -6,7 +7,7 @@
 
 3.实现写入文件根据大小和写入日志行数进行切割，可以自定如果不自定会使用默认参数
 
-4.并且实现websocket实时跟踪某个用户或者设备日志，web客户端需要自己实现，如有需求本人也可以提供
+4.并且实现websocket实时跟踪某个用户或者设备日志，web客户端需要自己实现，如有需求可以本人
 
 如果需要生成日志文件或者把数据写入数据库、文件、websocket发送到客户端，需要将配置文件复制到自己项目中，配置文件目前位于alog/conf/app.conf
 
@@ -36,7 +37,11 @@ windows终端：
 
 IDEA终端：
 
-![IDEA终端](http://150.158.34.122/image/idea.png)
+![IDEA终端](http://150.158.34.122/image/idea.png)     
+
+Websocket实时跟踪某个用户或者设备日志，web客户端需要自己实现，如有需求可以本人：
+
+![Websocket](http://150.158.34.122/image/websocket.png)
 
 
 go get github.com/qinjinze/alog  
@@ -50,6 +55,7 @@ go run main.go
 <br>
                  
 **English**:
+There have always been pain points in the past, so I wrote a log library myself, hoping to help everyone.
 
 1. Supports printing color logs on Linux, Windows, and IDEA terminals, and has not been tested on other vscodes
 
