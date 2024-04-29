@@ -8,6 +8,8 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"time"
+	"github.com/beego/beego/orm"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 // 设备日志
@@ -69,10 +71,24 @@ func InitModel(dbUserName, dbPassword, dbAddr, dbPort, dbName string) {
 		utils.G_mysql_port = dbPort
 	}
 	if utils.DbName == "" {
+		if dbName == "" {
+			dbName = "log" + time.Now().Format("20060102")
+		}
 		utils.DbName = dbName
 	}
 	logger.Info("数据库连接信息：", utils.G_mysql_dbUserName, utils.G_mysql_dbPassword, utils.G_mysql_addr, utils.G_mysql_port, utils.DbName)
+	// 注册数据库驱动和数据库DSN
+	orm.RegisterDriver("mysql", orm.DRMySQL)
+	orm.RegisterDataBase("default", "mysql", utils.G_mysql_dbUserName+":"+utils.G_mysql_dbPassword+"@tcp("+utils.DbName+")/")
 	var err error
+	// 创建数据库
+	sql := "CREATE DATABASE IF NOT EXISTS " + utils.DbName + " CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci"
+	_, err = orm.NewOrm().Raw(sql).Exec()
+	if err != nil {
+		panic("Error creating database,err=" + err.Error())
+		return
+	}
+
 	dsn := utils.G_mysql_dbUserName + ":" + utils.G_mysql_dbPassword + "@tcp(" + utils.G_mysql_addr + ":" + utils.G_mysql_port + ")/" + utils.DbName + "?charset=utf8mb4&parseTime=True&loc=Local"
 	Db, err = gorm.Open(mysql.New(mysql.Config{
 		DSN:                       dsn,   // DSN data source name
