@@ -46,5 +46,9 @@ type LogConfig struct {
 	Seller           string `json:"Seller"`           //商家名称
 	SellerId         string `json:"SellerId"`         //商家id
 	Token            string `json:"Token"`            //用户token
-
+	DbHost           string `json:"DbHost"`           //数据库主机地址
+	DbPort           string `json:"DbPort"`           //数据库端口
+	DbUserName       string `json:"DbUserName"`       //数据库用户名
+	DbPassword       string `json:"DbPassword"`       //数据库密码
+	DbName           string `json:"DbName"`           //数据库-库名称
 }
