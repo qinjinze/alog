@@ -77,9 +77,9 @@ If you need to generate a log file or write data to a database, file, or websock
 | 4     | WARN          | User level warning                                                                                   | yellow     |
 | 5     | EROR          | User level error                                                                                     | red        |
 | 6     | FATAL         | User level basic output                                                                              | Pink       |
-| 7     | CRIT          | System level hazards,<br> such as permission errors, abnormal access, etc                            | Pink       |
-| 8     | ALRT          | System level<br> warnings, such as abnormal database access, configuration file errors, etc          | Pink       |
-| 9     | EMER          | System level<br> emergencies, such as disk errors, memory anomalies, network unavailability,etc | Pink       |
+| 7     | CRIT          | System level hazards, such as permission errors, abnormal access, etc                            | Pink       |
+| 8     | ALRT          | System level warnings, such as abnormal database access, configuration file errors, etc          | Pink       |
+| 9     | EMER          | System level  emergencies, such as disk errors, memory anomalies, network unavailability,etc | Pink       |
 | 10    | INVADE        | Hacker intrusion                                                                                     | green      |
 
 go get github.com/qinjinze/alog   
