@@ -38,6 +38,9 @@ IDEA终端：
 
 ![IDEA终端](http://150.158.34.122/image/idea.png)
 
+Websocket实时跟踪某个用户或者设备日志，web客户端需要自己实现，如有需求可以本人：
+
+![Websocket](http://150.158.34.122/image/websocket.png)
 
 go get github.com/qinjinze/alog  
 或  
