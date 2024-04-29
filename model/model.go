@@ -10,21 +10,19 @@ import (
 	"time"
 )
 
-// 实时监控的历史轨迹日志
+// 设备日志
 type DeviceLog struct {
 	Id int64 `json:"DeviceLogId" gorm:"primaryKey"` //Id
-	//Sn         string    `orm:"size(30);description(编号)" json:"Sn"`                    //
 	Level      string    `orm:"size(10);NULL;description(日志等级名称)" json:"Level" gorm:"comment:日志等级名称"`           //
 	LevelInt   int       `orm:"size(2);NULL;description(日志等级)" json:"LevelInt" gorm:"comment:日志等级"`             //
 	Function   string    `orm:"size(100);NULL;description(功能模块)" json:"Function" gorm:"comment:功能模块"`           //
 	RequestId  string    `orm:"size(30);NULL;description(每次请求的唯一id)" json:"RequestId" gorm:"comment:每次请求的唯一id"` //
 	Token      string    `orm:"size(255);NULL;description(用户登录唯一id)" json:"Token" gorm:"comment:用户登录唯一id"`      //
-	UserName   string    `orm:"size(255);NULL;description(账户)" json:"UserName" gorm:"comment:用户登录唯一id"`         //
+	UserName   string    `orm:"size(255);NULL;description(设备唯一id)" json:"UserName" gorm:"comment:设备唯一id"`         //
 	Content    string    `orm:"size(255);NULL;description(日志内容)" json:"Content" gorm:"comment:用户登录唯一id"`        //
 	LogTime    time.Time `orm:"size(15);NULL;description(日志生成时间)" json:"LogTime" gorm:"comment:日志生成时间"`
 	CreateTime time.Time `orm:"size(6);auto_now_add;type(datetime);NULL;description(插入表中时间)" json:"CreateTime" gorm:"autoCreateTime;comment:插入表中时间"`
-	Seller     string    `orm:"size(255);NULL;description(商家简称：网店名称)" json:"Seller" gorm:"comment:商家简称：网店名称"` //
-	SellerId   string    `orm:"size(100);NULL;description(商家编号)" json:"SellerId" gorm:"comment:商家编号"`         //
+
 }
 
 // 管理后台日志
@@ -39,9 +37,6 @@ type PlatformLog struct {
 	Content    string    `orm:"size(255);NULL;description(日志内容)" json:"Content" gorm:"comment:用户登录唯一id"`        //
 	LogTime    time.Time `orm:"size(15);NULL;description(日志生成时间)" json:"LogTime" gorm:"comment:日志生成时间"`
 	CreateTime time.Time `orm:"size(6);auto_now_add;type(datetime);NULL;description(插入表中时间)" json:"CreateTime" gorm:"autoCreateTime;comment:插入表中时间"`
-	Seller     string    `orm:"size(255);NULL;description(商家简称：网店名称)" json:"Seller" gorm:"comment:商家简称：网店名称"` //
-	SellerId   string    `orm:"size(100);NULL;description(商家编号)" json:"SellerId" gorm:"comment:商家编号"`         //
-
 }
 
 // C端用户日志
@@ -56,8 +51,7 @@ type UserLog struct {
 	Content    string    `orm:"size(255);NULL;description(日志内容)" json:"Content" gorm:"comment:用户登录唯一id"`        //
 	LogTime    time.Time `orm:"size(15);NULL;description(日志生成时间)" json:"LogTime" gorm:"comment:日志生成时间"`
 	CreateTime time.Time `orm:"size(6);auto_now_add;type(datetime);NULL;description(插入表中时间)" json:"CreateTime" gorm:"autoCreateTime;comment:插入表中时间"`
-	Seller     string    `orm:"size(255);NULL;description(商家简称：网店名称)" json:"Seller" gorm:"comment:商家简称：网店名称"` //
-	SellerId   string    `orm:"size(100);NULL;description(商家编号)" json:"SellerId" gorm:"comment:商家编号"`         //
+
 
 }
 
