@@ -26,6 +26,19 @@
 | 9   | EMER    | 系统级紧急，比如磁盘出错，内存异常，网络不可用等 | 粉色    |
 | 10  | INVADE  | 黑客入侵                     | 绿色    |
 
+linux终端：
+
+![linux终端](http://150.158.34.122/image/linux.png)
+
+windows终端：
+
+![windows终端](http://150.158.34.122/image/windows.png)
+
+IDEA终端：
+
+![IDEA终端](http://150.158.34.122/image/idea.png)
+
+
 go get github.com/qinjinze/alog  
 或  
 go install github.com/qinjinze/alog@latest
