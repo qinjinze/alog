@@ -7,7 +7,7 @@
 
 3.实现写入文件根据大小和写入日志行数进行切割，可以自定如果不自定会使用默认参数
 
-4.并且实现websocket实时跟踪某个用户或者设备日志，web客户端需要自己实现，如有需求本人也可以提供
+4.并且实现websocket实时跟踪某个用户或者设备日志，web客户端需要自己实现，如有需求可以找本人 email:310508138@qq.com
 
 如果需要生成日志文件或者把数据写入数据库、文件、websocket发送到客户端，需要将配置文件复制到自己项目中，配置文件目前位于alog/conf/app.conf
 
@@ -39,7 +39,7 @@ IDEA终端：
 
 ![IDEA终端](http://150.158.34.122/image/idea.png)
 
-Websocket实时跟踪某个用户或者设备日志，web客户端需要自己实现，如有需求可以本人：
+Websocket实时跟踪某个用户或者设备日志，web客户端需要自己实现，如有需求可以找本人：email:310508138@qq.com
 
 ![Websocket](http://150.158.34.122/image/websocket.png)
 
@@ -62,7 +62,7 @@ There have always been pain points in the past, so I wrote a log library myself,
 
 3. Implement file splitting based on size and number of log lines written, which can be customized. If not customized, default parameters will be used
 
-4. And achieve real-time tracking of a user or device log through websocket. The web client needs to implement it themselves, and I can also provide it if needed
+4. And achieve real-time tracking of a user or device log through websocket. The web client needs to implement it themselves, and I can also provide it if needed email:310508138@qq.com
 
 If you need to generate a log file or write data to a database, file, or websocket to send to the client, you need to copy the configuration file to your own project. The configuration file is currently located in the directory/conf/app. conf
 
