@@ -51,17 +51,17 @@ If you need to generate a log file or write data to a database, file, or websock
 5. Log level configuration
 
 | Level | Configuration | Definition                                                                                           | Color      |
-| ----- | ------------- | ---------------------------------------------------------------------------------------------------- | ---------- |
+| ----- | ------------- |------------------------------------------------------------------------------------------------------| ---------- |
 | 0     | UNKNOWN       | unknown                                                                                              | Green blue |
-| 1     | TRACE         | User level basic output                                                                          | Grey white |
+| 1     | TRACE         | User level basic output                                                                              | Grey white |
 | 2     | DEBG          | User level debugging                                                                                 | Grey white |
 | 3     | INFO          | User level importance                                                                                | Sky blue   |
 | 4     | WARN          | User level warning                                                                                   | yellow     |
 | 5     | EROR          | User level error                                                                                     | red        |
-| 6     | FATAL         | User level basic<br> output                                                                          | Pink       |
+| 6     | FATAL         | User level basic output                                                                              | Pink       |
 | 7     | CRIT          | System level hazards,<br> such as permission errors, abnormal access, etc                            | Pink       |
 | 8     | ALRT          | System level<br> warnings, such as abnormal database access, configuration file errors, etc          | Pink       |
-| 9     | EMER          | System level<br> emergencies, such as disk errors, memory anomalies, network unavailability,<br> etc | Pink       |
+| 9     | EMER          | System level<br> emergencies, such as disk errors, memory anomalies, network unavailability,etc | Pink       |
 | 10    | INVADE        | Hacker intrusion                                                                                     | green      |
 
 go get github.com/qinjinze/alog   
