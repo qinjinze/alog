@@ -21,7 +21,7 @@ type DeviceLog struct {
 	UserName   string    `orm:"size(255);NULL;description(设备唯一id或登录名)" json:"UserName" gorm:"comment:设备唯一id或登录名"`         //
 	Content    string    `orm:"size(255);NULL;description(日志内容)" json:"Content" gorm:"comment:日志内容"`        //
 	LogTime    time.Time `orm:"size(15);NULL;description(日志生成时间)" json:"LogTime" gorm:"comment:日志生成时间"`
-	CreateTime time.Time `orm:"size(6);auto_now_add;type(datetime);NULL;description(插入表中时间)" json:"CreateTime" gorm:"autoCreateTime;comment:插入表中时间"`
+	CreateTime time.Time `orm:"size(6);auto_now_add;type(datetime);description(插入表中时间)" json:"CreateTime" gorm:"autoCreateTime;comment:插入表中时间"`
 }
 
 // 管理后台日志
@@ -35,7 +35,7 @@ type PlatformLog struct {
 	UserName   string    `orm:"size(255);NULL;description(账户)" json:"UserName" gorm:"comment:用户登录唯一id"`         //
 	Content    string    `orm:"size(255);NULL;description(日志内容)" json:"Content" gorm:"comment:日志内容"`        //
 	LogTime    time.Time `orm:"size(15);NULL;description(日志生成时间)" json:"LogTime" gorm:"comment:日志生成时间"`
-	CreateTime time.Time `orm:"size(6);auto_now_add;type(datetime);NULL;description(插入表中时间)" json:"CreateTime" gorm:"autoCreateTime;comment:插入表中时间"`
+	CreateTime time.Time `orm:"size(6);auto_now_add;type(datetime);description(插入表中时间)" json:"CreateTime" gorm:"autoCreateTime;comment:插入表中时间"`
 }
 
 // C端用户日志
@@ -49,7 +49,7 @@ type UserLog struct {
 	UserName   string    `orm:"size(255);NULL;description(账户)" json:"UserName" gorm:"comment:用户登录唯一id"`         //
 	Content    string    `orm:"size(255);NULL;description(日志内容)" json:"Content" gorm:"comment:日志内容"`        //
 	LogTime    time.Time `orm:"size(15);NULL;description(日志生成时间)" json:"LogTime" gorm:"comment:日志生成时间"`
-	CreateTime time.Time `orm:"size(6);auto_now_add;type(datetime);NULL;description(插入表中时间)" json:"CreateTime" gorm:"autoCreateTime;comment:插入表中时间"`
+	CreateTime time.Time `orm:"size(6);auto_now_add;type(datetime);description(插入表中时间)" json:"CreateTime" gorm:"autoCreateTime;comment:插入表中时间"`
 }
 
 var Db *gorm.DB
