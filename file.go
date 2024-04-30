@@ -627,12 +627,32 @@ func writeLogToDb() {
 		select {
 		case logTmpList := <-logChanList:
 
-			row := len(logTmpList.PlatformLog)
-
-			db := model.Db.CreateInBatches(logTmpList.PlatformLog, row)
-			if db.Error != nil {
-				logger.Error("db.CreateInBatches error:", db.Error)
-				logger.Error("db.CreateInBatches RowsAffected:", db.RowsAffected)
+			//保存日志到数据库
+			switch logTmpList.LogConfigInfo.LogType {
+			case "user":
+				db := model.Db.CreateInBatches(logTmpList.UserLog, len(logTmpList.UserLog))
+				if db.Error != nil {
+					logger.Error("db.CreateInBatches error:", db.Error)
+					logger.Error("db.CreateInBatches RowsAffected:", db.RowsAffected)
+				}
+			case "platform":
+				db := model.Db.CreateInBatches(logTmpList.PlatformLog, len(logTmpList.PlatformLog))
+				if db.Error != nil {
+					logger.Error("db.CreateInBatches error:", db.Error)
+					logger.Error("db.CreateInBatches RowsAffected:", db.RowsAffected)
+				}
+			case "device":
+				db := model.Db.CreateInBatches(logTmpList.DeviceLog, len(logTmpList.DeviceLog))
+				if db.Error != nil {
+					logger.Error("db.CreateInBatches error:", db.Error)
+					logger.Error("db.CreateInBatches RowsAffected:", db.RowsAffected)
+				}
+			default:
+				db := model.Db.CreateInBatches(logTmpList.PlatformLog, len(logTmpList.PlatformLog))
+				if db.Error != nil {
+					logger.Error("db.CreateInBatches error:", db.Error)
+					logger.Error("db.CreateInBatches RowsAffected:", db.RowsAffected)
+				}
 			}
 
 		case logTmpTrace := <-logChanTrace:
@@ -662,12 +682,39 @@ func writeLogToDbAndFile() {
 		//如果获取不到日志则logTmp := <-f.logChan管道阻塞了
 		select {
 		case logTmpList := <-logChanList:
-			row := len(logTmpList.PlatformLog)
+
+
 			//保存日志到数据库
-			db := model.Db.CreateInBatches(logTmpList.PlatformLog, row)
-			if db.Error != nil {
-				logger.Error("db.CreateInBatches error:", db.Error)
-				logger.Error("db.CreateInBatches RowsAffected:", db.RowsAffected)
+			row := 0
+			switch logTmpList.LogConfigInfo.LogType {
+			case "user":
+				row = len(logTmpList.UserLog)
+				db := model.Db.CreateInBatches(logTmpList.UserLog, row)
+				if db.Error != nil {
+					logger.Error("db.CreateInBatches error:", db.Error)
+					logger.Error("db.CreateInBatches RowsAffected:", db.RowsAffected)
+				}
+			case "platform":
+				row = len(logTmpList.PlatformLog)
+				db := model.Db.CreateInBatches(logTmpList.PlatformLog, row)
+				if db.Error != nil {
+					logger.Error("db.CreateInBatches error:", db.Error)
+					logger.Error("db.CreateInBatches RowsAffected:", db.RowsAffected)
+				}
+			case "device":
+				row = len(logTmpList.DeviceLog)
+				db := model.Db.CreateInBatches(logTmpList.DeviceLog, len(logTmpList.DeviceLog))
+				if db.Error != nil {
+					logger.Error("db.CreateInBatches error:", db.Error)
+					logger.Error("db.CreateInBatches RowsAffected:", db.RowsAffected)
+				}
+			default:
+				row = len(logTmpList.PlatformLog)
+				db := model.Db.CreateInBatches(logTmpList.PlatformLog, row)
+				if db.Error != nil {
+					logger.Error("db.CreateInBatches error:", db.Error)
+					logger.Error("db.CreateInBatches RowsAffected:", db.RowsAffected)
+				}
 			}
 
 			//把所有日志保存文件
