@@ -623,7 +623,7 @@ func writeLogToFile() {
 func writeLogToDb() {
 
 	for {
-		//logTmpList := <-logChanList管道阻塞了
+		//存储日志到对应数据库表
 		select {
 		case logTmpList := <-logChanList:
 
@@ -679,7 +679,7 @@ func writeLogToDbAndFile() {
 
 	for {
 
-		//如果获取不到日志则logTmp := <-f.logChan管道阻塞了
+		//存储日志到对应数据库表
 		select {
 		case logTmpList := <-logChanList:
 
