@@ -2,16 +2,12 @@ package model
 
 import (
 	"fmt"
-	"github.com/alog/utils"
-	_ "github.com/alog/utils"
 	"github.com/beego/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
+	"alog/utils"
+	_ "alog/utils"
 	"github.com/wonderivan/logger"
-	"gorm.io/driver/clickhouse"
 	"gorm.io/driver/mysql"
-	"gorm.io/driver/postgres"
-	"gorm.io/driver/sqlite"
-	"gorm.io/driver/sqlserver"
 	"gorm.io/gorm"
 	"time"
 )
