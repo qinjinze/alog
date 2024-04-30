@@ -1,15 +1,19 @@
 package model
 
 import (
+	"fmt"
 	"github.com/alog/utils"
 	_ "github.com/alog/utils"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/wonderivan/logger"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
-	"time"
 	"github.com/beego/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/wonderivan/logger"
+	"gorm.io/driver/clickhouse"
+	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
+	"gorm.io/driver/sqlserver"
+	"gorm.io/gorm"
+	"time"
 )
 
 // 设备日志
@@ -54,10 +58,18 @@ type UserLog struct {
 	CreateTime time.Time `orm:"size(6);auto_now_add;type(datetime);description(插入表中时间)" json:"CreateTime" gorm:"autoCreateTime;comment:插入表中时间"`
 }
 
+// 用户信息
+type User struct {
+	Id       int64  `json:"UserLogId" gorm:"primaryKey"`                                           //Id
+	UserName string `orm:"size(255);NULL;description(账户)" json:"UserName" gorm:"comment:用户登录唯一id"` //
+	Password string `orm:"size(255);NULL;description(密码)" json:"Password" gorm:"comment:用户登录密码"`   //
+}
 var Db *gorm.DB
+var err error
 
 func InitModel(dbUserName, dbPassword, dbAddr, dbPort, dbName string) {
 	utils.InitinitConfigFile()
+
 	if utils.G_mysql_dbUserName == "" {
 		utils.G_mysql_dbUserName = dbUserName
 	}
@@ -79,13 +91,13 @@ func InitModel(dbUserName, dbPassword, dbAddr, dbPort, dbName string) {
 	logger.Info("数据库连接信息：", utils.G_mysql_dbUserName, utils.G_mysql_dbPassword, utils.G_mysql_addr, utils.G_mysql_port, utils.DbName)
 	// 注册数据库驱动和数据库DSN
 	orm.RegisterDriver("mysql", orm.DRMySQL)
-	orm.RegisterDataBase("default", "mysql", utils.G_mysql_dbUserName+":"+utils.G_mysql_dbPassword+"@tcp("+utils.DbName+")/")
-	var err error
+	orm.RegisterDataBase("default", "mysql", utils.G_mysql_dbUserName+":"+utils.G_mysql_dbPassword+"@tcp("+utils.G_mysql_addr+")/")
+
 	// 创建数据库
 	sql := "CREATE DATABASE IF NOT EXISTS " + utils.DbName + " CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci"
 	_, err = orm.NewOrm().Raw(sql).Exec()
 	if err != nil {
-		panic("Error creating database,err=" + err.Error())
+		fmt.Println("Error creating database:", err)
 		return
 	}
 
@@ -114,9 +126,47 @@ func InitModel(dbUserName, dbPassword, dbAddr, dbPort, dbName string) {
 	sqlDB.SetMaxOpenConns(10000) //设置打开最大连接
 
 	// 迁移 schema ，自动创建表结构
-	err = Db.AutoMigrate(&DeviceLog{}, &PlatformLog{}, &UserLog{})
+	err = Db.AutoMigrate(&DeviceLog{}, &PlatformLog{}, &UserLog{}, &User{})
 	if err != nil {
 		logger.Error("数据库迁移失败", err)
 	}
 
+}
+
+func openMysql(dsn string) {
+	Db, err = gorm.Open(mysql.New(mysql.Config{
+		DSN:                       dsn,   // DSN data source name
+		DefaultStringSize:         256,   // string 类型字段的默认长度
+		DisableDatetimePrecision:  true,  // 禁用 datetime 精度，MySQL 5.6 之前的数据库不支持
+		DontSupportRenameIndex:    true,  // 重命名索引时采用删除并新建的方式，MySQL 5.7 之前的数据库和 MariaDB 不支持重命名索引
+		DontSupportRenameColumn:   true,  // 用 `change` 重命名列，MySQL 8 之前的数据库和 MariaDB 不支持重命名列
+		SkipInitializeWithVersion: false, // 根据当前 MySQL 版本自动配置
+	}), &gorm.Config{})
+	if err != nil {
+		panic("数据库连接失败，err=" + err.Error())
+		return
+	}
+}
+
+func openSqlite(dsn string) {
+	Db, err = gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{})
+}
+func openPostgres(dsn string) {
+	Db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+}
+func openOrcle(dsn string) {
+
+}
+func openTidb(dsn string) {
+
+}
+func openEs(dsn string) {
+
+}
+func openClickHouse(dsn string) {
+	Db, err = gorm.Open(clickhouse.Open(dsn), &gorm.Config{})
+}
+
+func openSqlserver(dsn string) {
+	Db, err = gorm.Open(sqlserver.Open(dsn), &gorm.Config{})
 }

@@ -917,6 +917,8 @@ type Client struct {
 
 var clients = make(map[*Client]string)
 
+
+// 处理连接请求
 func handleConnections(w http.ResponseWriter, r *http.Request) {
 
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -926,18 +928,26 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 	sn := r.URL.Query().Get("sn")
-	//client := &Client{conn: conn}
-	//clients[client] = sn
+
+	logger.Info("跟踪用户或设备:", sn)
 	connClient[sn] = conn
+	flag := false
+	for _, s := range TraceIdList {
+		if s == sn {
+			flag = true
+			break
+		}
+	}
+	if !flag {
+		TraceIdList = append(TraceIdList, sn)
+	}
+
 	for {
 		mt, message, err := conn.ReadMessage()
-		logger.Info("收到实时日志：", mt, string(message))
+
 		if err != nil {
-			log.Println(err)
-			//clientId := clients[client]
 			logger.Info("客户端断开连接，clientId:", sn, "sn:", sn)
 			delete(connClient, sn)
-			//delete(clients, client)
 			break
 		}
 
