@@ -9,7 +9,7 @@ import (
 
 // 测试自己写的日志库
 func main() {
-	//utils.IsConsole = false
+	// 日志配置，生存文件或写入数据库，并且实时跟踪日志才需要配置
 	//log := alog.LogConfig{
 	//	IsConsole:    true,
 	//	Level:        "debug",
