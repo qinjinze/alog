@@ -52,7 +52,7 @@ go install github.com/qinjinze/alog@latest
 cd alog/cmd
 
 go run main.go              
-   [file.go](file.go)
+
 <br>
                  
 **English**:  
