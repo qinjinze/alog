@@ -3,22 +3,21 @@ package alog
 import (
 	"crypto/tls"
 	"fmt"
-	"github.com/alog/model"
-	"github.com/alog/utils"
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"github.com/fatih/color"
 	"github.com/gorilla/websocket"
+	//"github.com/qinjinze/alog/model"
+	//"github.com/qinjinze/alog/utils"
+	"alog/model"
+	"alog/utils"
 	"github.com/wonderivan/logger"
+	"html/template"
+	"log"
 	"net/http"
 	"os"
 	"path"
 	"sync"
 	"time"
-	// "math/rand"
-	// "io"
-	//"log"
-	// "os"
-	"log"
 )
 
 type Logfile struct {
@@ -71,9 +70,9 @@ var isWebsocket = true
 // 根据指定的日志文件路径和文件名打开日志文件
 func (config *LogConfig) InitLogConfig() error {
 	logger.Info("InitLogConfig初始化日志数据，config=%+v", config)
+	logger.Info("isWebsocket=", isWebsocket)
 	model.InitModel(config.DbUserName, config.DbPassword, config.DbHost, config.DbPort, config.DbName)
 	var err error
-
 	if config.IsFile {
 		if utils.MaxLogSize != 0 {
 			config.MaxLogSize = utils.MaxLogSize * 1024 * 1024
@@ -321,7 +320,7 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 			UserName:  config.UserName,
 			Content:   msg,
 			LogTime:   time.Now(),
-			//CreateTime:config
+
 		}
 		logDbList.UserLog = append(logDbList.UserLog, message)
 		logDbList.LogConfigInfo = config
@@ -352,7 +351,6 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 			UserName:  config.UserName,
 			Content:   msg,
 			LogTime:   time.Now(),
-			//CreateTime:config
 
 		}
 
@@ -383,7 +381,6 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 			UserName:  config.UserName,
 			Content:   msg,
 			LogTime:   time.Now(),
-			//CreateTime:config
 
 		}
 
@@ -415,7 +412,6 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 			UserName:  config.UserName,
 			Content:   msg,
 			LogTime:   time.Now(),
-			//CreateTime:config
 
 		}
 
@@ -604,10 +600,15 @@ func writeLogToFile() {
 		case logTmpTrace := <-logChanTrace:
 			//把日志发送到mqtt中
 			//client.Publish("sub_"+logTmpTrace.PlatformLog.UserName, byte(*qos), *retained, logTmpTrace.PlatformLog.Content)
-			if conn, ok := connClient[logTmpTrace.LogConfigInfo.UserName]; ok {
-				conn.WriteMessage(websocket.TextMessage, []byte(logTmpTrace.PlatformLog.Content))
-			} else {
-				logger.Error("connClient not found, userName=", logTmpTrace.LogConfigInfo.UserName)
+			if logTmpTrace.LogConfigInfo.UserName != "" {
+				if conn, ok := connClient[logTmpTrace.LogConfigInfo.UserName]; ok {
+					err := conn.WriteMessage(websocket.TextMessage, []byte(logTmpTrace.PlatformLog.Content))
+					if err != nil {
+						logger.Error("write message error,err=", err, "userName=", logTmpTrace.LogConfigInfo.UserName)
+					}
+				} else {
+					logger.Error("connClient not found, userName=", logTmpTrace.LogConfigInfo.UserName)
+				}
 			}
 		default:
 			//如果从管道取不出来日志则休息500毫秒
@@ -636,10 +637,15 @@ func writeLogToDb() {
 
 		case logTmpTrace := <-logChanTrace:
 
-			if conn, ok := connClient[logTmpTrace.LogConfigInfo.UserName]; ok {
-				conn.WriteMessage(websocket.TextMessage, []byte(logTmpTrace.PlatformLog.Content))
-			} else {
-				logger.Error("connClient not found, UserName=", logTmpTrace.LogConfigInfo.UserName)
+			if logTmpTrace.LogConfigInfo.UserName != "" {
+				if conn, ok := connClient[logTmpTrace.LogConfigInfo.UserName]; ok {
+					err := conn.WriteMessage(websocket.TextMessage, []byte(logTmpTrace.PlatformLog.Content))
+					if err != nil {
+						logger.Error("write message error,err=", err, "userName=", logTmpTrace.LogConfigInfo.UserName)
+					}
+				} else {
+					logger.Error("connClient not found, userName=", logTmpTrace.LogConfigInfo.UserName)
+				}
 			}
 		default:
 			//如果从管道取不出来日志则休息500毫秒
@@ -782,10 +788,15 @@ func writeLogToDbAndFile() {
 			}
 
 		case logTmpTrace := <-logChanTrace:
-			if conn, ok := connClient[logTmpTrace.LogConfigInfo.UserName]; ok {
-				conn.WriteMessage(websocket.TextMessage, []byte(logTmpTrace.PlatformLog.Content))
-			} else {
-				logger.Error("connClient not found, userName=", logTmpTrace.LogConfigInfo.UserName)
+			if logTmpTrace.LogConfigInfo.UserName != "" {
+				if conn, ok := connClient[logTmpTrace.LogConfigInfo.UserName]; ok {
+					err := conn.WriteMessage(websocket.TextMessage, []byte(logTmpTrace.PlatformLog.Content))
+					if err != nil {
+						logger.Error("write message error,err=", err, "userName=", logTmpTrace.LogConfigInfo.UserName)
+					}
+				} else {
+					logger.Error("connClient not found, userName=", logTmpTrace.LogConfigInfo.UserName)
+				}
 			}
 
 		default:
@@ -906,7 +917,7 @@ var upgrader = websocket.Upgrader{
 // 启动websockt服务
 func websocketListen() {
 	logger.Info("启动websocket服务...")
-
+	//http.HandleFunc("/", index)
 	http.HandleFunc("/logWebsocket", handleConnections)
 	log.Fatal(http.ListenAndServe(":12345", nil))
 }
@@ -916,6 +927,15 @@ type Client struct {
 }
 
 var clients = make(map[*Client]string)
+
+func index(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		return
+	}
+
+	t, _ := template.ParseFiles("index.html")
+	t.Execute(w, nil)
+}
 
 
 // 处理连接请求
@@ -956,7 +976,7 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 }
 
 // 非格式化打印日志
-func (config *LogConfig) console(levelInt int, level, format string, a ...interface{}) {
+func (config *LogConfig) console(levelInt int, level string, format interface{}, a ...interface{}) {
 
 	if levelInt >= Level {
 		now := time.Now().Format(TimeFormat)
@@ -977,13 +997,13 @@ func (config *LogConfig) console(levelInt int, level, format string, a ...interf
 }
 
 // 未知级别日志
-func (config *LogConfig) Unknown(format string, a ...interface{}) {
+func (config *LogConfig) Unknown(format interface{}, a ...interface{}) {
 	//write(DEBUG, format, a...)
 	//config.console(UNKNOWN, "Unknown", format, a...)
 	if UNKNOWN >= Level {
 		now := time.Now().Format(TimeFormat)
 		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
+		msg := fmt.Sprint(format, abc[:len(abc)-1])
 		funcName, fileName, lineNo := getInfo(2)
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Unknown", fileName, funcName, lineNo, msg)
 		if config.IsConsole {
@@ -996,13 +1016,13 @@ func (config *LogConfig) Unknown(format string, a ...interface{}) {
 }
 
 // 用户级调试日志
-func (config *LogConfig) Debug(format string, a ...interface{}) {
+func (config *LogConfig) Debug(format interface{}, a ...interface{}) {
 	//write(DEBUG, format, a...)
 	//config.console(DEBUG, "Debug", format, a...)
 	if DEBUG >= Level {
 		now := time.Now().Format(TimeFormat)
 		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
+		msg := fmt.Sprint(format, abc[:len(abc)-1])
 		funcName, fileName, lineNo := getInfo(2)
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Debug", fileName, funcName, lineNo, msg)
 		if config.IsConsole {
@@ -1015,13 +1035,13 @@ func (config *LogConfig) Debug(format string, a ...interface{}) {
 }
 
 // 用户级信息日志
-func (config *LogConfig) Info(format string, a ...interface{}) {
+func (config *LogConfig) Info(format interface{}, a ...interface{}) {
 	//write(INFO, format, a...)
 	//config.console(INFO, "Info", format, a...)
 	if INFO >= Level {
 		now := time.Now().Format(TimeFormat)
 		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
+		msg := fmt.Sprint(format, abc[:len(abc)-1])
 		funcName, fileName, lineNo := getInfo(2)
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Info", fileName, funcName, lineNo, msg)
 		if config.IsConsole {
@@ -1034,7 +1054,7 @@ func (config *LogConfig) Info(format string, a ...interface{}) {
 }
 
 // 用户级警告
-func (config *LogConfig) Warn(format string, a ...interface{}) {
+func (config *LogConfig) Warn(format interface{}, a ...interface{}) {
 	//write(WARN, format, a...)
 	//config.console(WARN, "Warn", format, a...)
 	if WARN >= Level {
@@ -1053,14 +1073,14 @@ func (config *LogConfig) Warn(format string, a ...interface{}) {
 }
 
 // 用户级错误
-func (config *LogConfig) Error(format string, a ...interface{}) {
+func (config *LogConfig) Error(format interface{}, a ...interface{}) {
 
 	//write(ERROR, format, a...)
 	//config.console(ERROR, "Error", format, a...)
 	if ERROR >= Level {
 		now := time.Now().Format(TimeFormat)
 		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
+		msg := fmt.Sprint(format, abc[:len(abc)-1])
 		funcName, fileName, lineNo := getInfo(2)
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Error", fileName, funcName, lineNo, msg)
 		if config.IsConsole {
@@ -1073,14 +1093,14 @@ func (config *LogConfig) Error(format string, a ...interface{}) {
 }
 
 // 致命错误
-func (config *LogConfig) Fatal(format string, a ...interface{}) {
+func (config *LogConfig) Fatal(format interface{}, a ...interface{}) {
 
 	//write(FATAL, format, a...)
 	//config.console(FATAL, "Fatal", format, a...)
 	if FATAL >= Level {
 		now := time.Now().Format(TimeFormat)
 		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
+		msg := fmt.Sprint(format, abc[:len(abc)-1])
 		funcName, fileName, lineNo := getInfo(2)
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Fatal", fileName, funcName, lineNo, msg)
 		if config.IsConsole {
@@ -1093,13 +1113,13 @@ func (config *LogConfig) Fatal(format string, a ...interface{}) {
 }
 
 // 系统级危险，比如权限出错，访问异常等
-func (config *LogConfig) Crit(format string, a ...interface{}) {
+func (config *LogConfig) Crit(format interface{}, a ...interface{}) {
 	//write(CRIT, format, a...)
 	//config.console(CRIT, "Crit", format, a...)
 	if CRIT >= Level {
 		now := time.Now().Format(TimeFormat)
 		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
+		msg := fmt.Sprint(format, abc[:len(abc)-1])
 		funcName, fileName, lineNo := getInfo(2)
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Crit", fileName, funcName, lineNo, msg)
 		if config.IsConsole {
@@ -1112,14 +1132,14 @@ func (config *LogConfig) Crit(format string, a ...interface{}) {
 }
 
 // 系统级警告，比如数据库访问异常，配置文件出错等
-func (config *LogConfig) Alrt(format string, a ...interface{}) {
+func (config *LogConfig) Alrt(format interface{}, a ...interface{}) {
 
 	//write(ALRT, format, a...)
 	//config.console(ALRT, "Alrt", format, a...)
 	if ALRT >= Level {
 		now := time.Now().Format(TimeFormat)
 		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
+		msg := fmt.Sprint(format, abc[:len(abc)-1])
 		funcName, fileName, lineNo := getInfo(2)
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Alrt", fileName, funcName, lineNo, msg)
 		if config.IsConsole {
@@ -1132,14 +1152,14 @@ func (config *LogConfig) Alrt(format string, a ...interface{}) {
 }
 
 // 系统级紧急，比如磁盘出错，内存异常，网络不可用等
-func (config *LogConfig) Emer(format string, a ...interface{}) {
+func (config *LogConfig) Emer(format interface{}, a ...interface{}) {
 
 	//write(EMER, format, a...)
 	//config.console(EMER, "Emer", format, a...)
 	if EMER >= Level {
 		now := time.Now().Format(TimeFormat)
 		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
+		msg := fmt.Sprint(format, abc[:len(abc)-1])
 		funcName, fileName, lineNo := getInfo(2)
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Emer", fileName, funcName, lineNo, msg)
 		if config.IsConsole {
@@ -1152,13 +1172,13 @@ func (config *LogConfig) Emer(format string, a ...interface{}) {
 }
 
 // 入侵警告
-func (config *LogConfig) Invade(format string, a ...interface{}) {
+func (config *LogConfig) Invade(format interface{}, a ...interface{}) {
 	//write(INVADE, format, a...)
 	//config.console(INVADE, "Invade", format, a...)
 	if INVADE >= Level {
 		now := time.Now().Format(TimeFormat)
 		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
+		msg := fmt.Sprint(format, abc[:len(abc)-1])
 		funcName, fileName, lineNo := getInfo(2)
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Invade", fileName, funcName, lineNo, msg)
 		if config.IsConsole {
