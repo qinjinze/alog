@@ -3,13 +3,13 @@
 
 1.支持在linux、windows终端以及IDEA终端打印彩色日志，其它vscode等没有测试过
 
-2.支持日志写入数据库，大多数公司使用mysql,默认支持mysql，没有特殊要求，推荐使用postgresql或ES数据库。如果使用默认之外的数据库，请修改model.go和file.go文件，file.go文件630行或687行
+2.支持日志写入数据库，大多数公司使用mysql,默认支持mysql，没有特殊要求，推荐使用postgresql或ES数据库。如果使用默认之外的数据库，请修改model.go和file.go文件，file.go文件680行或737行
 
 3.支持写入文件根据大小和写入日志行数进行切割或按天切割，可以自定如果不自定会使用默认参数
 
 4.支持websocket实时跟踪某个用户或者设备日志，web客户端需要自己实现，如有需求可以找本人 email:310508138@qq.com  
 如果是本机测试，可以直接访问：http://127.0.0.1:12345/logWebsocket?sn="admin"  
-sn为设备号或用户名，此处根据自己需要是否决定做校验，默认不做校验，可以直接访问。需要校验可以在file.go文件中修改999行修改校验逻辑。  
+sn为设备号或用户名，此处根据自己需要是否决定做校验，默认不做校验，可以直接访问。需要校验可以在file.go文件中修改1052行修改校验逻辑。  
 
 如果需要生成日志文件或者把数据写入数据库、文件、websocket发送到客户端，需要将配置文件复制到自己项目中，配置文件目前位于alog/conf/app.conf  
 
@@ -60,13 +60,13 @@ There have always been pain points in the past, so I wrote a log library myself,
 
 1. Supports printing color logs on Linux, Windows, and IDEA terminals, and has not been tested on other vscodes
 
-2. Support log writing to the database. Most companies use MySQL, which is supported by default without any special requirements. It is recommended to use PostgreSQL or ES databases. If using a database other than the default, please modify the model. go and file. go files, file. go file at line 630 or 687  
+2. Support log writing to the database. Most companies use MySQL, which is supported by default without any special requirements. It is recommended to use PostgreSQL or ES databases. If using a database other than the default, please modify the model. go and file. go files, file. go file at line 680 or 737  
 
 3. Implement file write splitting based on size and number of log lines written or daily splitting, which can be customized. If not customized, default parameters will be used  
 
 4. Support websocket for real-time tracking of user or device logs. The web client needs to implement it themselves. If there is a need, you can contact me via email: 310508138@qq.com  
    If it is a local test, you can directly access: http://127.0.0.1:12345/logWebsocket?sn= "Admin"  
-   SN is the device number or username, and it is determined whether to perform verification based on personal needs. By default, verification is not performed and can be accessed directly. To verify, you can modify the verification logic in line 999 of the file. go file.    
+   SN is the device number or username, and it is determined whether to perform verification based on personal needs. By default, verification is not performed and can be accessed directly. To verify, you can modify the verification logic in line 1052 of the file. go file.    
 
 If you need to generate a log file or write data to a database, file, or websocket to send to the client, you need to copy the configuration file to your own project. The configuration file is currently located in the directory/conf/app. conf
 
