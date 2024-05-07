@@ -1,6 +1,7 @@
 package alog
 
 import (
+	"bufio"
 	"crypto/tls"
 	"fmt"
 	MQTT "github.com/eclipse/paho.mqtt.golang"
@@ -189,6 +190,7 @@ func (config *LogConfig) InitLogConfig() error {
 	if config.TimeFormat != "" {
 		TimeFormat = config.TimeFormat
 	}
+	config.Db = model.Db
 	config.LevelInt = ParseLogLevel("debug")
 	logger.Info("InitLogConfig初始化日志数据完毕，config=%+v", config)
 	return nil
@@ -229,8 +231,14 @@ func (config LogConfig) connectMqtt() {
 	//client.Publish(*topic, byte(*qos), *retained, "hello world,I am a alog client")
 }
 
+// open log file
 func (config *LogConfig) openLogFile() (*os.File, error) {
 	fullFileName := path.Join(config.LogPath, config.LogName)
+	var err error
+	logRowCount, err = countLines(fullFileName)
+	if err != nil {
+		logger.Error("Count the number of lines in a file,err=", err)
+	}
 	fileObj, err := os.OpenFile(fullFileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		logger.Error("open log file failed,err=", err)
@@ -238,9 +246,16 @@ func (config *LogConfig) openLogFile() (*os.File, error) {
 	}
 	return fileObj, nil
 }
+
+// open error log file
 func (config *LogConfig) openEerrorLogFile() (*os.File, error) {
 	errorLogName := path.Join(config.ErrorLogPath, config.ErrorLogName)
 	//logger.Error("errorLogName=", errorLogName)
+	var err error
+	errorLogRowCount, err = countLines(errorLogName)
+	if err != nil {
+		logger.Error("Count the number of lines in a file,err=", err)
+	}
 	errFileObj, err := os.OpenFile(errorLogName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		logger.Error("open log file failed,err=", err)
@@ -249,9 +264,30 @@ func (config *LogConfig) openEerrorLogFile() (*os.File, error) {
 	return errFileObj, nil
 }
 
+// 统计文件的行数：Count the number of lines in a file
+func countLines(path string) (int, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return 0, err
+	}
+	defer file.Close()
+
+	lineCount := 0
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		lineCount++
+	}
+
+	if err := scanner.Err(); err != nil {
+		return 0, err
+	}
+
+	return lineCount, nil
+}
+
 // 检查log是否需要切割
 func checkSize(isErrorLog bool, file *os.File) bool {
-
+	//获取文件信息
 	fileInfo, err := file.Stat()
 
 	if err != nil {
@@ -263,6 +299,7 @@ func checkSize(isErrorLog bool, file *os.File) bool {
 	if isErrorLog {
 		return fileInfo.Size() >= errorLogSize
 	}
+	fileInfo.Sys()
 
 	return fileInfo.Size() >= logSize
 }
@@ -320,7 +357,9 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 			UserName:  config.UserName,
 			Content:   msg,
 			LogTime:   time.Now(),
-
+			//CreateTime:config
+			Seller:   config.Seller,
+			SellerId: config.SellerId,
 		}
 		logDbList.UserLog = append(logDbList.UserLog, message)
 		logDbList.LogConfigInfo = config
@@ -351,7 +390,9 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 			UserName:  config.UserName,
 			Content:   msg,
 			LogTime:   time.Now(),
-
+			//CreateTime:config
+			Seller:   config.Seller,
+			SellerId: config.SellerId,
 		}
 
 		logDbList.PlatformLog = append(logDbList.PlatformLog, message)
@@ -381,7 +422,9 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 			UserName:  config.UserName,
 			Content:   msg,
 			LogTime:   time.Now(),
-
+			//CreateTime:config
+			Seller:   config.Seller,
+			SellerId: config.SellerId,
 		}
 
 		if IsTrace {
@@ -412,7 +455,9 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 			UserName:  config.UserName,
 			Content:   msg,
 			LogTime:   time.Now(),
-
+			//CreateTime:config
+			Seller:   config.Seller,
+			SellerId: config.SellerId,
 		}
 
 		if IsTrace {
@@ -511,6 +556,7 @@ func writeLogToFile() {
 								logger.Error("切割错误日志文件出错，err=", err)
 								return
 							}
+							logRowCount = 0
 							logFile.fileObj = newFile
 						}
 
@@ -530,6 +576,7 @@ func writeLogToFile() {
 							logger.Error("切割错误日志文件出错，err=", err)
 							return
 						}
+						logRowCount = 0
 						logFile.fileObj = newFile
 					}
 
@@ -568,6 +615,7 @@ func writeLogToFile() {
 							if !isSpiteErrorLog {
 								isSpiteErrorLog = true
 								newFile, err := spiteFile(logFile.errFileObj, logTmpList.LogConfigInfo.LogPath) //切割错误的日志文件
+								errorLogRowCount = 0
 								isSpiteErrorLog = false
 								if err != nil {
 									logger.Error("切割错误日志文件出错，err=", err)
@@ -585,6 +633,7 @@ func writeLogToFile() {
 							isSpiteErrorLog = true
 							newFile, err := spiteFile(logFile.errFileObj, logTmpList.LogConfigInfo.LogPath) //切割错误的日志文件
 							isSpiteErrorLog = false
+							errorLogRowCount = 0
 							if err != nil {
 								logger.Error("切割错误日志文件出错，err=", err)
 								return
@@ -683,7 +732,6 @@ func writeLogToDbAndFile() {
 		select {
 		case logTmpList := <-logChanList:
 
-
 			//保存日志到数据库
 			row := 0
 			switch logTmpList.LogConfigInfo.LogType {
@@ -740,7 +788,7 @@ func writeLogToDbAndFile() {
 						logRowCount++
 					}
 					if logRowCount >= logTmpList.LogConfigInfo.MaxLogLines {
-
+						logger.Info("checkSize检查log是否需要切割，logRowCount=", logRowCount, "MaxLogLines=", logTmpList.LogConfigInfo.MaxLogLines, "isSpiteLog=", isSpiteLog)
 						if !isSpiteLog {
 							isSpiteLog = true
 							newFile, err := spiteFile(logFile.fileObj, logTmpList.LogConfigInfo.LogPath) //切割错误的日志文件
@@ -749,6 +797,7 @@ func writeLogToDbAndFile() {
 								logger.Error("切割错误日志文件出错，err=", err)
 								return
 							}
+							logRowCount = 0
 							logFile.fileObj = newFile
 						}
 
@@ -759,6 +808,7 @@ func writeLogToDbAndFile() {
 			}
 
 			if row >= 1000 {
+				logger.Info("row=", row)
 				if checkSize(false, logFile.fileObj) {
 					if !isSpiteLog {
 						isSpiteLog = true
@@ -768,6 +818,7 @@ func writeLogToDbAndFile() {
 							logger.Error("切割错误日志文件出错，err=", err)
 							return
 						}
+						logRowCount = 0
 						logFile.fileObj = newFile
 					}
 
@@ -782,7 +833,6 @@ func writeLogToDbAndFile() {
 				tmpCount := 0
 				for _, log := range logTmpList.PlatformLog {
 					if log.LevelInt >= ERROR {
-
 						//如果记录的日志级别大于ERROR级别，我还要在err日志文件中再记录一遍
 						_, err := fmt.Fprintf(logFile.errFileObj, log.Content)
 						if err != nil {
@@ -806,6 +856,7 @@ func writeLogToDbAndFile() {
 							if !isSpiteErrorLog {
 								isSpiteErrorLog = true
 								newFile, err := spiteFile(logFile.errFileObj, logTmpList.LogConfigInfo.LogPath) //切割错误的日志文件
+								errorLogRowCount = 0
 								isSpiteErrorLog = false
 								if err != nil {
 									logger.Error("切割错误日志文件出错，err=", err)
@@ -822,6 +873,7 @@ func writeLogToDbAndFile() {
 						if !isSpiteErrorLog {
 							isSpiteErrorLog = true
 							newFile, err := spiteFile(logFile.errFileObj, logTmpList.LogConfigInfo.LogPath) //切割错误的日志文件
+							errorLogRowCount = 0
 							isSpiteErrorLog = false
 							if err != nil {
 								logger.Error("切割错误日志文件出错，err=", err)
@@ -864,6 +916,7 @@ func (config *LogConfig) checkLog() {
 			if !isSpiteLog {
 				isSpiteLog = true
 				newFile, err := spiteFile(logFile.fileObj, config.LogPath) //切割正常的日志文件
+				logRowCount = 0
 				isSpiteLog = false
 				if err != nil {
 					logger.Error("切割日志文件出错", err)
@@ -879,6 +932,7 @@ func (config *LogConfig) checkLog() {
 			if !isSpiteLog {
 				isSpiteLog = true
 				newFile, err := spiteFile(logFile.fileObj, config.LogPath) //切割错误的日志文件
+				logRowCount = 0
 				isSpiteLog = false
 				if err != nil {
 					logger.Error("切割日志文件出错，err=", err)
@@ -927,6 +981,7 @@ func (config *LogConfig) checkEerrorLog() {
 				isSpiteErrorLog = true
 				newFile, err := spiteFile(logFile.errFileObj, config.ErrorLogPath) //切割错误的日志文件
 				isSpiteErrorLog = false
+				errorLogRowCount = 0
 				if err != nil {
 					logger.Error("切割错误日志文件出错，err=", err)
 					return
@@ -941,6 +996,7 @@ func (config *LogConfig) checkEerrorLog() {
 				isSpiteErrorLog = true
 				newFile, err := spiteFile(logFile.errFileObj, config.ErrorLogPath) //切割错误的日志文件
 				isSpiteErrorLog = false
+				errorLogRowCount = 0
 				if err != nil {
 					logger.Error("切割错误日志文件出错，err=", err)
 					return
@@ -983,7 +1039,6 @@ func index(w http.ResponseWriter, r *http.Request) {
 	t, _ := template.ParseFiles("index.html")
 	t.Execute(w, nil)
 }
-
 
 // 处理连接请求
 func handleConnections(w http.ResponseWriter, r *http.Request) {

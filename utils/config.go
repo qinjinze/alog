@@ -58,7 +58,9 @@ func InitinitConfigFile() {
 	G_redis_addr = appconf.String("redisaddr")
 	G_redis_port = appconf.String("redisport")
 	redis_port := appconf.String("redisdbnum")
+
 	G_redis_password = appconf.String("password")
+	G_mysql_addr = appconf.String("mysqladdr")
 	G_mysql_addr = appconf.String("mysqladdr")
 	G_mysql_port = appconf.String("mysqlport")
 	G_mysql_dbUserName = appconf.String("dbUserName")

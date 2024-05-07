@@ -1,0 +1,136 @@
+package model
+
+import (
+	"time"
+
+	//"github.com/astaxie/beego/orm"
+	"alog/utils"
+	_ "alog/utils"
+	"github.com/beego/beego/orm"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/wonderivan/logger"
+	"runtime"
+)
+
+// 实时监控的历史轨迹日志
+type DeviceLog struct {
+	//Id              int64     `json:"DeviceId"`
+	//Sn              string    `orm:"size(30);description(编号)" json:"Sn"`                       //
+	//Type            string    `orm:"size(30);NULL;description(型号)" json:"Type"`                //
+	//Status          string    `orm:"size(30);NULL;description(状态)" json:"Status"`              //
+	//Alias           string    `orm:"size(100);NULL;description(别名)" json:"Alias"`              //
+	//City            string    `orm:"size(100);NULL;description(城市)" json:"City"`               //
+	//Seller          string    `orm:"size(200);NULL;description(合作商)" json:"Seller"`            //
+	//SellerId        string    `orm:"size(100);NULL;description(商家编号)" json:"SellerId"`         //商家编号
+	//Name            string    `orm:"size(100);description(创建设备的账户)" json:"Name"`               //
+	//Battery         string    `orm:"size(10);NULL;description(电量)" json:"Battery"`             //
+	//Longitude       string    `orm:"size(20);NULL;description(经度)" json:"Longitude"`           //经度
+	//Latitude        string    `orm:"size(20);NULL;description(纬度)" json:"Latitude"`            //纬度
+	//Speed           string    `orm:"size(100);NULL;description(速度)" json:"Speed"`              //
+	//Angle           string    `orm:"size(100);NULL;description(角度)" json:"Angle"`              //
+	//Interval        int64     `orm:"size(100);NULL;description(设备上传消息间隔时间)" json:"Interval"`   //
+	//SoftwareVersion string    `orm:"size(100);NULL;description(软件版本号)" json:"SoftwareVersion"` //软件版本号
+	//HardwareVersion string    `orm:"size(100);NULL;description(硬件版本号)" json:"HardwareVersion"` //硬件版本号
+	//CreateTime      time.Time `orm:"size(6);description(消息创建时间)" json:"CreateTime"`
+	//ReportingTime   time.Time `orm:"size(6);NULL;description(设备上报消息中时间)" json:"ReportingTime"` //
+	//ReceptionTime   time.Time `orm:"size(6);NULL;description(服务器接收的时间)" json:"ReceptionTime"`  //
+	//Command         string    `orm:"size(30);NULL;description(设备指令)" json:"Command"`           //
+	//SerialNumber    string    `orm:"size(30);NULL;description(设备发送消息序号)" json:"SerialNumber"`  //
+	//SignalStrength  string    `orm:"size(30);NULL;description(信号强度)" json:"SignalStrength"`    //
+	//Content         string    `orm:"size(255);NULL;description(设备上报原始消息)" json:"Content"`      //
+	Id int64 `json:"DeviceLogId"` //Id
+	//Sn         string    `orm:"size(30);description(编号)" json:"Sn"`                    //
+	Level      string    `orm:"size(10);NULL;description(日志等级)" json:"Level"`          //
+	LevelInt   int       `orm:"size(2);NULL;description(日志等级)" json:"LevelInt"`        //
+	Function   string    `orm:"size(100);NULL;description(功能模块)" json:"Function"`      //
+	RequestId  string    `orm:"size(30);NULL;description(每次请求的唯一id)" json:"RequestId"` //
+	Token      string    `orm:"size(255);NULL;description(用户登录唯一id)" json:"Token"`     //
+	UserName   string    `orm:"size(255);NULL;description(账户)" json:"UserName"`        //
+	Content    string    `orm:"size(255);NULL;description(日志内容)" json:"Content"`       //
+	LogTime    time.Time `orm:"size(15);NULL;description(日志时间)" json:"LogTime"`
+	CreateTime time.Time `orm:"size(6);auto_now_add;type(datetime);NULL;description(创建时间)" json:"CreateTime"`
+	Seller     string    `orm:"size(255);NULL;description(商家简称：网店名称)" json:"Seller"` //
+	SellerId   string    `orm:"size(100);NULL;description(商家编号)" json:"SellerId"`    //
+}
+
+//var DbName = "log20240423"
+
+func init() {
+	InitDatabase()
+}
+
+func InitDatabase() {
+	logger.Info("init deviceLog model")
+	sysType := runtime.GOOS
+	logger.Info("sysType=", sysType)
+
+	/*	if sysType == "linux" {
+				//LINUX系统
+				logger.SetLogger(`{"File":{"filename":"/data/logs/remind/reminder.log","level":"TRAC","daily":false,"maxlines":700000,"maxsize":104857600,"maxdays":-1,"append":true,"permit":"0660"}}`)
+			}
+			if sysType == "windows" {
+				// windows系统
+				//logger.SetLogger(`{"File":{"filename":"reminder.log","level":"TRAC","daily":false,"maxlines":700000,"maxsize":104857600,"maxdays":-1,"append":true,"permit":"0660"}}`)
+				logger.SetLogger(`{
+		    "TimeFormat":"2006-01-02 15:04:05",
+		    "Console": {
+		        "level": "TRAC",
+		        "color": true
+		    },
+		    "File": {
+		        "filename": "app.log",
+		        "level": "TRAC",
+		        "daily": true,
+		        "maxlines": 1000000,
+		        "maxsize": 1,
+		        "maxdays": -1,
+		        "append": true,
+		        "permit": "0660"
+		    }
+
+		}`)
+			}*/
+
+	//logger.SetLogger(`{"File":{"filename":"../logs/app.log","level":"TRAC","daily":false,"maxlines":1000000,"maxsize":104857600,"maxdays":-1,"append":true,"permit":"0660"}}`)
+	//调用什么驱动
+	err := orm.RegisterDriver("mysql", orm.DRMySQL)
+	if err != nil {
+		logger.Error(err)
+		return
+	}
+
+	logger.Info("utils.G_mysql_addr=", utils.G_mysql_addr, "port=", utils.G_mysql_port)
+	logger.Info("username=", utils.G_mysql_dbname, "utils.G_mysql_dbPassword=", utils.G_mysql_dbPassword)
+
+	//连接数据   ( 默认参数 ，mysql数据库 ，"数据库的用户名 ：数据库密码@tcp("+数据库地址+":"+数据库端口+")/库名？格式",默认参数）
+	err = orm.RegisterDataBase("default", "mysql", utils.G_mysql_dbname+":"+utils.G_mysql_dbPassword+"@tcp("+utils.G_mysql_addr+":"+utils.G_mysql_port+")/"+utils.DbName+"?charset=utf8mb4&loc=Local", 101, 100)
+	//err = orm.RegisterDataBase("default", "mysql", utils.G_mysql_dbname+":"+utils.G_mysql_dbPassword+"@tcp("+utils.G_mysql_addr+":"+utils.G_mysql_port+")/dingxin_main?timeout=30s&loc=Local&parseTime=true&allowOldPasswords=1", 101, 10000)
+	//err = orm.RegisterDataBase("default", "mysql", "root"+":"+"wk123456"+"@tcp("+"127.0.0.1"+":"+"3306"+")/dingxin_main?timeout=30s&loc=Local&parseTime=true&allowOldPasswords=1", 101, 10000)
+
+	if err != nil {
+		logger.Error(err)
+		return
+	}
+	orm.DefaultTimeLoc = time.Local
+	orm.Debug = false
+	//orm.ResetDataBaseCache()
+	//orm.SetMaxIdleConns("default", 101)
+	//orm.SetMaxOpenConns("default", 500)
+
+	////注册model 建表
+	orm.RegisterModel(new(DeviceLog), new(PlatformLog), new(AppletLog), new(UserLog))
+
+	//第一个是别名,第二个值为true，则删除所有表，并且重建表，所有原来数据全部清空
+	err = orm.RunSyncdb("default", true, true)
+	if err != nil {
+		logger.Error(err)
+		return
+	}
+
+	//注册model 建表
+	//orm.RegisterModel(new(PlatformLog))
+	//初始化日志数据
+	//InitLogData()
+	//初始化数据
+	//utils.InitData()
+}

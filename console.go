@@ -7,11 +7,11 @@ import (
 )
 
 // 非格式化打印日志
-func console(lv int, level, format string, a ...interface{}) {
+func console(lv int, level, format interface{}, a ...interface{}) {
 	if lv >= Level {
 		now := time.Now().Format(TimeFormat)
 		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprintln(format, abc[:len(abc)-1])
+		msg := fmt.Sprint(format, abc[:len(abc)-1])
 
 		funcName, fileName, lineNo := getInfo(3)
 
@@ -21,12 +21,12 @@ func console(lv int, level, format string, a ...interface{}) {
 }
 
 // 未知级别日志
-func Unknown(format string, a ...interface{}) {
+func Unknown(format interface{}, a ...interface{}) {
 	//console(UNKNOWN, "Unknown", format, a...)
 	if UNKNOWN >= Level {
 		now := time.Now().Format(TimeFormat)
 		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
+		msg := fmt.Sprint(format, abc[:len(abc)-1])
 		funcName, fileName, lineNo := getInfo(2)
 		if IsColor {
 			color.Cyan("%s [%s] [%s=>%s:%d] %s", now, "Unknown", fileName, funcName, lineNo, msg)
@@ -38,13 +38,13 @@ func Unknown(format string, a ...interface{}) {
 }
 
 // 用户级调试日志
-func Debug(format string, a ...interface{}) {
+func Debug(format interface{}, a ...interface{}) {
 
 	//console(DEBUG, "Debug", format, a...)
 	if DEBUG >= Level {
 		now := time.Now().Format(TimeFormat)
 		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
+		msg := fmt.Sprint(format, abc[:len(abc)-1])
 
 		funcName, fileName, lineNo := getInfo(2)
 		if IsColor {
@@ -56,13 +56,13 @@ func Debug(format string, a ...interface{}) {
 }
 
 // 用户级信息日志
-func Info(format string, a ...interface{}) {
+func Info(format interface{}, a ...interface{}) {
 
 	//console(INFO, "Info", format, a...)
 	if INFO >= Level {
 		now := time.Now().Format(TimeFormat)
 		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
+		msg := fmt.Sprint(format, abc[:len(abc)-1])
 		funcName, fileName, lineNo := getInfo(2)
 		if IsColor {
 			color.Blue("%s [%s] [%s=>%s:%d] %s", now, "Info", fileName, funcName, lineNo, msg)
@@ -73,13 +73,13 @@ func Info(format string, a ...interface{}) {
 }
 
 // 用户级警告
-func Warn(format string, a ...interface{}) {
+func Warn(format interface{}, a ...interface{}) {
 
 	//console(WARN, "Warn", format, a...)
 	if WARN >= Level {
 		now := time.Now().Format(TimeFormat)
 		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
+		msg := fmt.Sprint(format, abc[:len(abc)-1])
 
 		funcName, fileName, lineNo := getInfo(2)
 		if IsColor {
@@ -91,13 +91,13 @@ func Warn(format string, a ...interface{}) {
 }
 
 // 用户级错误
-func Error(format string, a ...interface{}) {
+func Error(format interface{}, a ...interface{}) {
 
 	//console(ERROR, "Error", format, a...)
 	if ERROR >= Level {
 		now := time.Now().Format(TimeFormat)
 		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
+		msg := fmt.Sprint(format, abc[:len(abc)-1])
 
 		funcName, fileName, lineNo := getInfo(2)
 		if IsColor {
@@ -109,13 +109,13 @@ func Error(format string, a ...interface{}) {
 }
 
 // 致命错误
-func Fatal(format string, a ...interface{}) {
+func Fatal(format interface{}, a ...interface{}) {
 
 	//console(FATAL, "Fatal", format, a...)
 	if FATAL >= Level {
 		now := time.Now().Format(TimeFormat)
 		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
+		msg := fmt.Sprint(format, abc[:len(abc)-1])
 
 		funcName, fileName, lineNo := getInfo(2)
 		if IsColor {
@@ -128,13 +128,13 @@ func Fatal(format string, a ...interface{}) {
 }
 
 // 系统级危险，比如权限出错，访问异常等
-func Crit(format string, a ...interface{}) {
+func Crit(format interface{}, a ...interface{}) {
 
 	//console(CRIT, "Crit", format, a...)
 	if CRIT >= Level {
 		now := time.Now().Format(TimeFormat)
 		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
+		msg := fmt.Sprint(format, abc[:len(abc)-1])
 
 		funcName, fileName, lineNo := getInfo(2)
 		if IsColor {
@@ -146,13 +146,13 @@ func Crit(format string, a ...interface{}) {
 }
 
 // 系统级警告，比如数据库访问异常，配置文件出错等
-func Alrt(format string, a ...interface{}) {
+func Alrt(format interface{}, a ...interface{}) {
 
 	//console(ALRT, "Alrt", format, a...)
 	if ALRT >= Level {
 		now := time.Now().Format(TimeFormat)
 		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
+		msg := fmt.Sprint(format, abc[:len(abc)-1])
 
 		funcName, fileName, lineNo := getInfo(2)
 		if IsColor {
@@ -164,13 +164,12 @@ func Alrt(format string, a ...interface{}) {
 }
 
 // 系统级紧急，比如磁盘出错，内存异常，网络不可用等
-func Emer(format string, a ...interface{}) {
-
+func Emer(format interface{}, a ...interface{}) {
 	//console(EMER, "Emer", format, a...)
 	if EMER >= Level {
 		now := time.Now().Format(TimeFormat)
 		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
+		msg := fmt.Sprint(format, abc[:len(abc)-1])
 
 		funcName, fileName, lineNo := getInfo(2)
 		if IsColor {
@@ -182,13 +181,13 @@ func Emer(format string, a ...interface{}) {
 }
 
 // 入侵警告
-func Invade(format string, a ...interface{}) {
+func Invade(format interface{}, a ...interface{}) {
 
 	//console(INVADE, "Invade", format, a...)
 	if INVADE >= Level {
 		now := time.Now().Format(TimeFormat)
 		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
+		msg := fmt.Sprint(format, abc[:len(abc)-1])
 
 		funcName, fileName, lineNo := getInfo(2)
 		if IsColor {
