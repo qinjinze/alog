@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"github.com/beego/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
-	//"github.com/qinjinze/alog/utils"
-	"alog/utils"
-	//_ "github.com/qinjinze/alog/utils"
-	_ "alog/utils"
+	"github.com/qinjinze/alog/utils"
+	//"alog/utils"
+	_ "github.com/qinjinze/alog/utils"
+	//_ "alog/utils"
 	"github.com/wonderivan/logger"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -27,8 +27,7 @@ type DeviceLog struct {
 	Content    string    `orm:"size(1024);NULL;description(日志内容)" json:"Content" gorm:"comment:日志内容;type:text"`   //
 	LogTime    time.Time `orm:"size(6);NULL;description(日志生成时间)" json:"LogTime" gorm:"comment:日志生成时间"`
 	CreateTime time.Time `orm:"size(6);auto_now_add;type(datetime);description(插入表中时间)" json:"CreateTime" gorm:"autoCreateTime;comment:插入表中时间"`
-	Seller     string    `orm:"size(255);NULL;description(商家简称：网店名称)" json:"Seller" gorm:"comment:商家简称：网店名称"` //
-	SellerId   string    `orm:"size(100);NULL;description(商家编号)" json:"SellerId" gorm:"comment:商家编号"`         //
+
 }
 
 // 管理后台日志
@@ -43,8 +42,8 @@ type PlatformLog struct {
 	Content    string    `orm:"size(1024);NULL;description(日志内容)" json:"Content" gorm:"comment:日志内容;type:text"` //
 	LogTime    time.Time `orm:"size(6);NULL;description(日志生成时间)" json:"LogTime" gorm:"comment:日志生成时间"`
 	CreateTime time.Time `orm:"size(6);auto_now_add;type(datetime);description(插入表中时间)" json:"CreateTime" gorm:"autoCreateTime;comment:插入表中时间"`
-	Seller     string    `orm:"size(255);NULL;description(商家简称：网店名称)" json:"Seller" gorm:"comment:商家简称：网店名称"` //
-	SellerId   string    `orm:"size(100);NULL;description(商家编号)" json:"SellerId" gorm:"comment:商家编号"`         //
+	Page       string    `orm:"size(10);NULL;description(页面名称)" json:"Page" gorm:"comment:页面名称"`              //
+	Api        string    `orm:"size(10);NULL;description(请求接口)" json:"Api" gorm:"comment:请求接口"`
 
 }
 
@@ -60,8 +59,8 @@ type UserLog struct {
 	Content    string    `orm:"size(1024);NULL;description(日志内容)" json:"Content" gorm:"comment:日志内容;type:text"` //
 	LogTime    time.Time `orm:"size(6);NULL;description(日志生成时间)" json:"LogTime" gorm:"comment:日志生成时间"`
 	CreateTime time.Time `orm:"size(6);auto_now_add;type(datetime);description(插入表中时间)" json:"CreateTime" gorm:"autoCreateTime;comment:插入表中时间"`
-	Seller     string    `orm:"size(255);NULL;description(商家简称：网店名称)" json:"Seller" gorm:"comment:商家简称：网店名称"` //
-	SellerId   string    `orm:"size(100);NULL;description(商家编号)" json:"SellerId" gorm:"comment:商家编号"`         //
+	Page       string    `orm:"size(10);NULL;description(页面名称)" json:"Page" gorm:"comment:页面名称"`              //
+	Api        string    `orm:"size(10);NULL;description(请求接口)" json:"Api" gorm:"comment:请求接口"`
 
 }
 
