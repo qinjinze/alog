@@ -7,10 +7,10 @@ import (
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"github.com/fatih/color"
 	"github.com/gorilla/websocket"
-	//"github.com/qinjinze/alog/model"
-	//"github.com/qinjinze/alog/utils"
-	"alog/model"
-	"alog/utils"
+	"github.com/qinjinze/alog/model"
+	"github.com/qinjinze/alog/utils"
+	//"alog/model"
+	//"alog/utils"
 	"github.com/wonderivan/logger"
 	"html/template"
 	"log"
@@ -360,6 +360,8 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 			//CreateTime:config
 			Seller:   config.Seller,
 			SellerId: config.SellerId,
+			Page:     config.Page,
+			Api:      config.Api,
 		}
 		logDbList.UserLog = append(logDbList.UserLog, message)
 		logDbList.LogConfigInfo = config
@@ -393,6 +395,8 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 			//CreateTime:config
 			Seller:   config.Seller,
 			SellerId: config.SellerId,
+			Page:     config.Page,
+			Api:      config.Api,
 		}
 
 		logDbList.PlatformLog = append(logDbList.PlatformLog, message)
@@ -420,6 +424,7 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 			RequestId: config.RequestId,
 			Token:     config.Token,
 			UserName:  config.UserName,
+			Sn:        config.UserName,
 			Content:   msg,
 			LogTime:   time.Now(),
 			//CreateTime:config
@@ -458,6 +463,8 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 			//CreateTime:config
 			Seller:   config.Seller,
 			SellerId: config.SellerId,
+			Page:     config.Page,
+			Api:      config.Api,
 		}
 
 		if IsTrace {
@@ -727,7 +734,6 @@ func writeLogToDb() {
 func writeLogToDbAndFile() {
 
 	for {
-
 		//存储日志到对应数据库表
 		select {
 		case logTmpList := <-logChanList:
@@ -1104,8 +1110,8 @@ func (config *LogConfig) Unknown(format interface{}, a ...interface{}) {
 	//config.console(UNKNOWN, "Unknown", format, a...)
 	if UNKNOWN >= Level {
 		now := time.Now().Format(TimeFormat)
-		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprint(format, abc[:len(abc)-1])
+		abc := fmt.Sprint(a...)
+		msg := fmt.Sprint(format, abc)
 		funcName, fileName, lineNo := getInfo(2)
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Unknown", fileName, funcName, lineNo, msg)
 		if config.IsConsole {
@@ -1123,15 +1129,15 @@ func (config *LogConfig) Debug(format interface{}, a ...interface{}) {
 	//config.console(DEBUG, "Debug", format, a...)
 	if DEBUG >= Level {
 		now := time.Now().Format(TimeFormat)
-		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprint(format, abc[:len(abc)-1])
+		abc := fmt.Sprint(a...)
+		msg := fmt.Sprint(format, abc)
 		funcName, fileName, lineNo := getInfo(2)
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Debug", fileName, funcName, lineNo, msg)
 		if config.IsConsole {
 			color.White(message)
-			config.writeLog(message, "Debug", DEBUG)
+			config.writeLog(message+"\n", "Debug", DEBUG)
 		} else {
-			config.writeLog(message, "Debug", DEBUG)
+			config.writeLog(message+"\n", "Debug", DEBUG)
 		}
 	}
 }
@@ -1142,15 +1148,15 @@ func (config *LogConfig) Info(format interface{}, a ...interface{}) {
 	//config.console(INFO, "Info", format, a...)
 	if INFO >= Level {
 		now := time.Now().Format(TimeFormat)
-		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprint(format, abc[:len(abc)-1])
+		abc := fmt.Sprint(a...)
+		msg := fmt.Sprint(format, abc)
 		funcName, fileName, lineNo := getInfo(2)
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Info", fileName, funcName, lineNo, msg)
 		if config.IsConsole {
 			color.Blue(message)
-			config.writeLog(message, "Info", DEBUG)
+			config.writeLog(message+"\n", "Info", DEBUG)
 		} else {
-			config.writeLog(message, "Info", DEBUG)
+			config.writeLog(message+"\n", "Info", DEBUG)
 		}
 	}
 }
@@ -1161,15 +1167,15 @@ func (config *LogConfig) Warn(format interface{}, a ...interface{}) {
 	//config.console(WARN, "Warn", format, a...)
 	if WARN >= Level {
 		now := time.Now().Format(TimeFormat)
-		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprintf("%s%s", format, abc[:len(abc)-1])
+		abc := fmt.Sprint(a...)
+		msg := fmt.Sprint(format, abc)
 		funcName, fileName, lineNo := getInfo(2)
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Warn", fileName, funcName, lineNo, msg)
 		if config.IsConsole {
 			color.Yellow(message)
-			config.writeLog(message, "Warn", WARN)
+			config.writeLog(message+"\n", "Warn", WARN)
 		} else {
-			config.writeLog(message, "Warn", WARN)
+			config.writeLog(message+"\n", "Warn", WARN)
 		}
 	}
 }
@@ -1181,15 +1187,15 @@ func (config *LogConfig) Error(format interface{}, a ...interface{}) {
 	//config.console(ERROR, "Error", format, a...)
 	if ERROR >= Level {
 		now := time.Now().Format(TimeFormat)
-		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprint(format, abc[:len(abc)-1])
+		abc := fmt.Sprint(a...)
+		msg := fmt.Sprint(format, abc)
 		funcName, fileName, lineNo := getInfo(2)
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Error", fileName, funcName, lineNo, msg)
 		if config.IsConsole {
 			color.Red(message)
-			config.writeLog(message, "Error", ERROR)
+			config.writeLog(message+"\n", "Error", ERROR)
 		} else {
-			config.writeLog(message, "Error", ERROR)
+			config.writeLog(message+"\n", "Error", ERROR)
 		}
 	}
 }
@@ -1201,15 +1207,15 @@ func (config *LogConfig) Fatal(format interface{}, a ...interface{}) {
 	//config.console(FATAL, "Fatal", format, a...)
 	if FATAL >= Level {
 		now := time.Now().Format(TimeFormat)
-		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprint(format, abc[:len(abc)-1])
+		abc := fmt.Sprint(a...)
+		msg := fmt.Sprint(format, abc)
 		funcName, fileName, lineNo := getInfo(2)
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Fatal", fileName, funcName, lineNo, msg)
 		if config.IsConsole {
 			color.Magenta(message)
-			config.writeLog(message, "Fatal", FATAL)
+			config.writeLog(message+"\n", "Fatal", FATAL)
 		} else {
-			config.writeLog(message, "Fatal", FATAL)
+			config.writeLog(message+"\n", "Fatal", FATAL)
 		}
 	}
 }
@@ -1220,15 +1226,15 @@ func (config *LogConfig) Crit(format interface{}, a ...interface{}) {
 	//config.console(CRIT, "Crit", format, a...)
 	if CRIT >= Level {
 		now := time.Now().Format(TimeFormat)
-		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprint(format, abc[:len(abc)-1])
+		abc := fmt.Sprint(a...)
+		msg := fmt.Sprint(format, abc)
 		funcName, fileName, lineNo := getInfo(2)
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Crit", fileName, funcName, lineNo, msg)
 		if config.IsConsole {
 			color.Magenta(message)
-			config.writeLog(message, "Crit", CRIT)
+			config.writeLog(message+"\n", "Crit", CRIT)
 		} else {
-			config.writeLog(message, "Crit", CRIT)
+			config.writeLog(message+"\n", "Crit", CRIT)
 		}
 	}
 }
@@ -1240,15 +1246,15 @@ func (config *LogConfig) Alrt(format interface{}, a ...interface{}) {
 	//config.console(ALRT, "Alrt", format, a...)
 	if ALRT >= Level {
 		now := time.Now().Format(TimeFormat)
-		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprint(format, abc[:len(abc)-1])
+		abc := fmt.Sprint(a...)
+		msg := fmt.Sprint(format, abc)
 		funcName, fileName, lineNo := getInfo(2)
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Alrt", fileName, funcName, lineNo, msg)
 		if config.IsConsole {
 			color.Magenta(message)
-			config.writeLog(message, "Alrt", ALRT)
+			config.writeLog(message+"\n", "Alrt", ALRT)
 		} else {
-			config.writeLog(message, "Alrt", ALRT)
+			config.writeLog(message+"\n", "Alrt", ALRT)
 		}
 	}
 }
@@ -1260,15 +1266,15 @@ func (config *LogConfig) Emer(format interface{}, a ...interface{}) {
 	//config.console(EMER, "Emer", format, a...)
 	if EMER >= Level {
 		now := time.Now().Format(TimeFormat)
-		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprint(format, abc[:len(abc)-1])
+		abc := fmt.Sprint(a...)
+		msg := fmt.Sprint(format, abc)
 		funcName, fileName, lineNo := getInfo(2)
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Emer", fileName, funcName, lineNo, msg)
 		if config.IsConsole {
 			color.Magenta(message)
-			config.writeLog(message, "Emer", EMER)
+			config.writeLog(message+"\n", "Emer", EMER)
 		} else {
-			config.writeLog(message, "Emer", EMER)
+			config.writeLog(message+"\n", "Emer", EMER)
 		}
 	}
 }
@@ -1279,15 +1285,15 @@ func (config *LogConfig) Invade(format interface{}, a ...interface{}) {
 	//config.console(INVADE, "Invade", format, a...)
 	if INVADE >= Level {
 		now := time.Now().Format(TimeFormat)
-		abc := fmt.Sprintln(a...)
-		msg := fmt.Sprint(format, abc[:len(abc)-1])
+		abc := fmt.Sprint(a...)
+		msg := fmt.Sprint(format, abc)
 		funcName, fileName, lineNo := getInfo(2)
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Invade", fileName, funcName, lineNo, msg)
 		if config.IsConsole {
 			color.Green(message)
-			config.writeLog(message, "Invade", INVADE)
+			config.writeLog(message+"\n", "Invade", INVADE)
 		} else {
-			config.writeLog(message, "Invade", INVADE)
+			config.writeLog(message+"\n", "Invade", INVADE)
 		}
 	}
 }
@@ -1374,7 +1380,7 @@ func (config *LogConfig) Wf(format string, a ...interface{}) {
 		msg := fmt.Sprintf(format, a...)
 		now := time.Now().Format(TimeFormat)
 		funcName, fileName, lineNo := getInfo(2)
-		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s \n", now, "Warn", fileName, funcName, lineNo, msg)
+		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s\n", now, "Warn", fileName, funcName, lineNo, msg)
 		if config.IsConsole {
 			color.Yellow(message)
 			config.writeLog(message, "Warn", WARN)
