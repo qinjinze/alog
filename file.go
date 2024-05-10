@@ -821,7 +821,7 @@ func writeLogToDbAndFile() {
 			}
 
 			if row >= 1000 {
-				logger.Info("row=", row)
+
 				if checkSize(false, logFile.fileObj) {
 					if !isSpiteLog {
 						isSpiteLog = true
@@ -900,7 +900,6 @@ func writeLogToDbAndFile() {
 			}
 			//发送websocket消息
 		case logTmpTrace := <-logChanTrace:
-			logger.Info("************************logTmpTrace:", logTmpTrace.LogConfigInfo.UserName, logTmpTrace.Content, TraceIdPeriod[logTmpTrace.LogConfigInfo.UserName])
 			if logTmpTrace.LogConfigInfo.UserName != "" {
 				if conn, ok := connClient[logTmpTrace.LogConfigInfo.UserName]; ok {
 					err := conn.WriteMessage(websocket.TextMessage, []byte(logTmpTrace.Content))
@@ -1071,6 +1070,7 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	logger.Info("跟踪用户或设备:", sn)
 	connClient[sn] = conn
 	flag := false
+
 	for _, s := range TraceIdList {
 		if s == sn {
 			flag = true
@@ -1148,9 +1148,9 @@ func (config *LogConfig) Debug(format interface{}, a ...interface{}) {
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Debug", fileName, funcName, lineNo, msg)
 		if config.IsConsole {
 			color.White(message)
-			config.writeLog(message+"\n", "Debug", DEBUG)
+			config.writeLog(message, "Debug", DEBUG)
 		} else {
-			config.writeLog(message+"\n", "Debug", DEBUG)
+			config.writeLog(message, "Debug", DEBUG)
 		}
 	}
 }
@@ -1161,15 +1161,16 @@ func (config *LogConfig) Info(format interface{}, a ...interface{}) {
 	//config.console(INFO, "Info", format, a...)
 	if INFO >= Level {
 		now := time.Now().Format(TimeFormat)
-		abc := fmt.Sprint(a...)
+		abc := fmt.Sprintln(a...)
 		msg := fmt.Sprint(format, abc)
+		//msg := fmt.Sprintln(format, abc)
 		funcName, fileName, lineNo := getInfo(2)
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Info", fileName, funcName, lineNo, msg)
 		if config.IsConsole {
 			color.Blue(message)
-			config.writeLog(message+"\n", "Info", DEBUG)
+			config.writeLog(message, "Info", DEBUG)
 		} else {
-			config.writeLog(message+"\n", "Info", DEBUG)
+			config.writeLog(message, "Info", DEBUG)
 		}
 	}
 }
@@ -1186,9 +1187,9 @@ func (config *LogConfig) Warn(format interface{}, a ...interface{}) {
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Warn", fileName, funcName, lineNo, msg)
 		if config.IsConsole {
 			color.Yellow(message)
-			config.writeLog(message+"\n", "Warn", WARN)
+			config.writeLog(message, "Warn", WARN)
 		} else {
-			config.writeLog(message+"\n", "Warn", WARN)
+			config.writeLog(message, "Warn", WARN)
 		}
 	}
 }
@@ -1206,9 +1207,9 @@ func (config *LogConfig) Error(format interface{}, a ...interface{}) {
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Error", fileName, funcName, lineNo, msg)
 		if config.IsConsole {
 			color.Red(message)
-			config.writeLog(message+"\n", "Error", ERROR)
+			config.writeLog(message, "Error", ERROR)
 		} else {
-			config.writeLog(message+"\n", "Error", ERROR)
+			config.writeLog(message, "Error", ERROR)
 		}
 	}
 }
@@ -1226,9 +1227,9 @@ func (config *LogConfig) Fatal(format interface{}, a ...interface{}) {
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Fatal", fileName, funcName, lineNo, msg)
 		if config.IsConsole {
 			color.Magenta(message)
-			config.writeLog(message+"\n", "Fatal", FATAL)
+			config.writeLog(message, "Fatal", FATAL)
 		} else {
-			config.writeLog(message+"\n", "Fatal", FATAL)
+			config.writeLog(message, "Fatal", FATAL)
 		}
 	}
 }
@@ -1245,9 +1246,9 @@ func (config *LogConfig) Crit(format interface{}, a ...interface{}) {
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Crit", fileName, funcName, lineNo, msg)
 		if config.IsConsole {
 			color.Magenta(message)
-			config.writeLog(message+"\n", "Crit", CRIT)
+			config.writeLog(message, "Crit", CRIT)
 		} else {
-			config.writeLog(message+"\n", "Crit", CRIT)
+			config.writeLog(message, "Crit", CRIT)
 		}
 	}
 }
@@ -1265,9 +1266,9 @@ func (config *LogConfig) Alrt(format interface{}, a ...interface{}) {
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Alrt", fileName, funcName, lineNo, msg)
 		if config.IsConsole {
 			color.Magenta(message)
-			config.writeLog(message+"\n", "Alrt", ALRT)
+			config.writeLog(message, "Alrt", ALRT)
 		} else {
-			config.writeLog(message+"\n", "Alrt", ALRT)
+			config.writeLog(message, "Alrt", ALRT)
 		}
 	}
 }
@@ -1285,9 +1286,9 @@ func (config *LogConfig) Emer(format interface{}, a ...interface{}) {
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Emer", fileName, funcName, lineNo, msg)
 		if config.IsConsole {
 			color.Magenta(message)
-			config.writeLog(message+"\n", "Emer", EMER)
+			config.writeLog(message, "Emer", EMER)
 		} else {
-			config.writeLog(message+"\n", "Emer", EMER)
+			config.writeLog(message, "Emer", EMER)
 		}
 	}
 }
@@ -1304,9 +1305,9 @@ func (config *LogConfig) Invade(format interface{}, a ...interface{}) {
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Invade", fileName, funcName, lineNo, msg)
 		if config.IsConsole {
 			color.Green(message)
-			config.writeLog(message+"\n", "Invade", INVADE)
+			config.writeLog(message, "Invade", INVADE)
 		} else {
-			config.writeLog(message+"\n", "Invade", INVADE)
+			config.writeLog(message, "Invade", INVADE)
 		}
 	}
 }
