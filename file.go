@@ -33,9 +33,10 @@ type LogDataList struct {
 }
 type LogDataTrace struct {
 	LogConfigInfo LogConfig
-	PlatformLog   model.PlatformLog
-	UserLog       model.UserLog
-	DeviceLog     model.DeviceLog
+	//PlatformLog   model.PlatformLog
+	//UserLog       model.UserLog
+	//DeviceLog     model.DeviceLog
+	Content string
 }
 
 // var Orm = orm.NewOrm()
@@ -369,7 +370,7 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 		if IsTrace {
 			for _, s := range TraceIdList {
 				if s == message.UserName {
-					logDataTrace.UserLog = message
+					logDataTrace.Content = msg
 					logDataTrace.LogConfigInfo = config
 					logChanTrace <- logDataTrace
 					break
@@ -405,7 +406,7 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 		if IsTrace {
 			for _, s := range TraceIdList {
 				if s == message.UserName {
-					logDataTrace.PlatformLog = message
+					logDataTrace.Content = msg
 					logDataTrace.LogConfigInfo = config
 					logChanTrace <- logDataTrace
 					break
@@ -435,7 +436,7 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 		if IsTrace {
 			for _, s := range TraceIdList {
 				if s == message.UserName {
-					logDataTrace.DeviceLog = message
+					logDataTrace.Content = msg
 					logDataTrace.LogConfigInfo = config
 					logChanTrace <- logDataTrace
 					break
@@ -471,7 +472,7 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 			for _, s := range TraceIdList {
 
 				if s == message.UserName {
-					logDataTrace.PlatformLog = message
+					logDataTrace.Content = msg
 					logDataTrace.LogConfigInfo = config
 					logChanTrace <- logDataTrace
 					break
@@ -652,15 +653,18 @@ func writeLogToFile() {
 				}
 
 			}
-
+			//发送websocket消息
 		case logTmpTrace := <-logChanTrace:
 			//把日志发送到mqtt中
 			//client.Publish("sub_"+logTmpTrace.PlatformLog.UserName, byte(*qos), *retained, logTmpTrace.PlatformLog.Content)
 			if logTmpTrace.LogConfigInfo.UserName != "" {
 				if conn, ok := connClient[logTmpTrace.LogConfigInfo.UserName]; ok {
-					err := conn.WriteMessage(websocket.TextMessage, []byte(logTmpTrace.PlatformLog.Content))
+					err := conn.WriteMessage(websocket.TextMessage, []byte(logTmpTrace.Content))
 					if err != nil {
-						logger.Error("write message error,err=", err, "userName=", logTmpTrace.LogConfigInfo.UserName)
+						logger.Error("write message error,err=", err)
+						logger.Info("删除过期的实时日志id:", logTmpTrace.LogConfigInfo.UserName)
+						delete(TraceIdPeriod, logTmpTrace.LogConfigInfo.UserName)
+						delete(connClient, logTmpTrace.LogConfigInfo.UserName)
 					}
 				} else {
 					logger.Error("connClient not found, userName=", logTmpTrace.LogConfigInfo.UserName)
@@ -710,14 +714,17 @@ func writeLogToDb() {
 					logger.Error("db.CreateInBatches RowsAffected:", db.RowsAffected)
 				}
 			}
-
+			//发送websocket消息
 		case logTmpTrace := <-logChanTrace:
 
 			if logTmpTrace.LogConfigInfo.UserName != "" {
 				if conn, ok := connClient[logTmpTrace.LogConfigInfo.UserName]; ok {
-					err := conn.WriteMessage(websocket.TextMessage, []byte(logTmpTrace.PlatformLog.Content))
+					err := conn.WriteMessage(websocket.TextMessage, []byte(logTmpTrace.Content))
 					if err != nil {
-						logger.Error("write message error,err=", err, "userName=", logTmpTrace.LogConfigInfo.UserName)
+						logger.Error("write message error,err=", err)
+						logger.Info("删除过期的实时日志id:", logTmpTrace.LogConfigInfo.UserName)
+						delete(TraceIdPeriod, logTmpTrace.LogConfigInfo.UserName)
+						delete(connClient, logTmpTrace.LogConfigInfo.UserName)
 					}
 				} else {
 					logger.Error("connClient not found, userName=", logTmpTrace.LogConfigInfo.UserName)
@@ -891,13 +898,17 @@ func writeLogToDbAndFile() {
 					}
 				}
 			}
-
+			//发送websocket消息
 		case logTmpTrace := <-logChanTrace:
+			logger.Info("************************logTmpTrace:", logTmpTrace.LogConfigInfo.UserName, logTmpTrace.Content, TraceIdPeriod[logTmpTrace.LogConfigInfo.UserName])
 			if logTmpTrace.LogConfigInfo.UserName != "" {
 				if conn, ok := connClient[logTmpTrace.LogConfigInfo.UserName]; ok {
-					err := conn.WriteMessage(websocket.TextMessage, []byte(logTmpTrace.PlatformLog.Content))
+					err := conn.WriteMessage(websocket.TextMessage, []byte(logTmpTrace.Content))
 					if err != nil {
-						logger.Error("write message error,err=", err, "userName=", logTmpTrace.LogConfigInfo.UserName)
+						logger.Error("write message error,err=", err)
+						logger.Info("删除过期的实时日志id:", logTmpTrace.LogConfigInfo.UserName)
+						delete(TraceIdPeriod, logTmpTrace.LogConfigInfo.UserName)
+						delete(connClient, logTmpTrace.LogConfigInfo.UserName)
 					}
 				} else {
 					logger.Error("connClient not found, userName=", logTmpTrace.LogConfigInfo.UserName)
@@ -1068,6 +1079,8 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	}
 	if !flag {
 		TraceIdList = append(TraceIdList, sn)
+		period := time.Now().Add(time.Hour * 24)
+		TraceIdPeriod[sn] = period
 	}
 
 	for {
@@ -1078,7 +1091,7 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 			delete(connClient, sn)
 			break
 		}
-
+		conn.WriteMessage(mt, message)
 		logger.Info("收到实时日志：", mt, string(message))
 	}
 }
