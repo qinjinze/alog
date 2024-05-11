@@ -1123,7 +1123,7 @@ func (config *LogConfig) Unknown(format interface{}, a ...interface{}) {
 	//config.console(UNKNOWN, "Unknown", format, a...)
 	if UNKNOWN >= Level {
 		now := time.Now().Format(TimeFormat)
-		abc := fmt.Sprint(a...)
+		abc := fmt.Sprintln(a...)
 		msg := fmt.Sprint(format, abc)
 		funcName, fileName, lineNo := getInfo(2)
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Unknown", fileName, funcName, lineNo, msg)
@@ -1142,7 +1142,7 @@ func (config *LogConfig) Debug(format interface{}, a ...interface{}) {
 	//config.console(DEBUG, "Debug", format, a...)
 	if DEBUG >= Level {
 		now := time.Now().Format(TimeFormat)
-		abc := fmt.Sprint(a...)
+		abc := fmt.Sprintln(a...)
 		msg := fmt.Sprint(format, abc)
 		funcName, fileName, lineNo := getInfo(2)
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Debug", fileName, funcName, lineNo, msg)
@@ -1181,7 +1181,7 @@ func (config *LogConfig) Warn(format interface{}, a ...interface{}) {
 	//config.console(WARN, "Warn", format, a...)
 	if WARN >= Level {
 		now := time.Now().Format(TimeFormat)
-		abc := fmt.Sprint(a...)
+		abc := fmt.Sprintln(a...)
 		msg := fmt.Sprint(format, abc)
 		funcName, fileName, lineNo := getInfo(2)
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Warn", fileName, funcName, lineNo, msg)
@@ -1201,7 +1201,7 @@ func (config *LogConfig) Error(format interface{}, a ...interface{}) {
 	//config.console(ERROR, "Error", format, a...)
 	if ERROR >= Level {
 		now := time.Now().Format(TimeFormat)
-		abc := fmt.Sprint(a...)
+		abc := fmt.Sprintln(a...)
 		msg := fmt.Sprint(format, abc)
 		funcName, fileName, lineNo := getInfo(2)
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Error", fileName, funcName, lineNo, msg)
@@ -1221,7 +1221,7 @@ func (config *LogConfig) Fatal(format interface{}, a ...interface{}) {
 	//config.console(FATAL, "Fatal", format, a...)
 	if FATAL >= Level {
 		now := time.Now().Format(TimeFormat)
-		abc := fmt.Sprint(a...)
+		abc := fmt.Sprintln(a...)
 		msg := fmt.Sprint(format, abc)
 		funcName, fileName, lineNo := getInfo(2)
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Fatal", fileName, funcName, lineNo, msg)
@@ -1240,7 +1240,7 @@ func (config *LogConfig) Crit(format interface{}, a ...interface{}) {
 	//config.console(CRIT, "Crit", format, a...)
 	if CRIT >= Level {
 		now := time.Now().Format(TimeFormat)
-		abc := fmt.Sprint(a...)
+		abc := fmt.Sprintln(a...)
 		msg := fmt.Sprint(format, abc)
 		funcName, fileName, lineNo := getInfo(2)
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Crit", fileName, funcName, lineNo, msg)
@@ -1260,7 +1260,7 @@ func (config *LogConfig) Alrt(format interface{}, a ...interface{}) {
 	//config.console(ALRT, "Alrt", format, a...)
 	if ALRT >= Level {
 		now := time.Now().Format(TimeFormat)
-		abc := fmt.Sprint(a...)
+		abc := fmt.Sprintln(a...)
 		msg := fmt.Sprint(format, abc)
 		funcName, fileName, lineNo := getInfo(2)
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Alrt", fileName, funcName, lineNo, msg)
@@ -1280,7 +1280,7 @@ func (config *LogConfig) Emer(format interface{}, a ...interface{}) {
 	//config.console(EMER, "Emer", format, a...)
 	if EMER >= Level {
 		now := time.Now().Format(TimeFormat)
-		abc := fmt.Sprint(a...)
+		abc := fmt.Sprintln(a...)
 		msg := fmt.Sprint(format, abc)
 		funcName, fileName, lineNo := getInfo(2)
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Emer", fileName, funcName, lineNo, msg)
@@ -1299,7 +1299,7 @@ func (config *LogConfig) Invade(format interface{}, a ...interface{}) {
 	//config.console(INVADE, "Invade", format, a...)
 	if INVADE >= Level {
 		now := time.Now().Format(TimeFormat)
-		abc := fmt.Sprint(a...)
+		abc := fmt.Sprintln(a...)
 		msg := fmt.Sprint(format, abc)
 		funcName, fileName, lineNo := getInfo(2)
 		message := fmt.Sprintf("%s [%s] [%s=>%s:%d] %s", now, "Invade", fileName, funcName, lineNo, msg)
