@@ -68,6 +68,8 @@ var topic *string
 
 var connClient = make(map[string]*websocket.Conn)
 var isWebsocket = true
+var sendLogsDbAndFileChanTime = time.Now()
+var sendLogsFileChanTime = time.Now()
 
 // 根据指定的日志文件路径和文件名打开日志文件
 func (config *LogConfig) InitLogConfig() error {
@@ -193,7 +195,9 @@ func (config *LogConfig) InitLogConfig() error {
 	}
 	config.Db = model.Db
 	config.LevelInt = ParseLogLevel("debug")
-	logger.Info("InitLogConfig初始化日志数据完毕，config=%+v", config)
+	//周期性发送日志数据到管道channel
+	go periodicallySendLogsToChan()
+	go logger.Info("InitLogConfig初始化日志数据完毕，config=%+v", config)
 	return nil
 
 }
@@ -417,6 +421,7 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 			logFileList.PlatformLog = append(logFileList.PlatformLog, message)
 			logFileList.LogConfigInfo = config
 		}
+
 	case "device":
 		message := model.DeviceLog{
 			Level:     level,
@@ -451,6 +456,7 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 			logFileList.DeviceLog = append(logFileList.DeviceLog, message)
 			logFileList.LogConfigInfo = config
 		}
+
 	default:
 		message := model.PlatformLog{
 			Level:     level,
@@ -487,36 +493,37 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 			logFileList.PlatformLog = append(logFileList.PlatformLog, message)
 			logFileList.LogConfigInfo = config
 		}
-	}
 
-	//避免通道满或者异常导致无法写入
+	}
+	logger.Debug("logChanList=", len(logChanList), "config.SaveDbType=", config.SaveDbType, "config.isDbAndFile=", isDbAndFile)
+	//日志保存数据库和文件发送到管道
 	if config.SaveDbType != "" || isDbAndFile {
-		if len(logChanList) < 2 || len(logDbList.PlatformLog) > 999 {
+		if len(logChanList) < 2 || len(logDbList.PlatformLog) > 999 || len(logDbList.UserLog) > 999 || len(logDbList.DeviceLog) > 999 {
 
 			select {
 			//正常写入
 			case logChanList <- logDbList:
-
 				logDbList = LogDataList{}
+				sendLogsDbAndFileChanTime = time.Now()
 			default:
-				fmt.Printf("LogChanList is full, cap=%d, len=%d\n", cap(logChanList), len(logDbList.PlatformLog))
+				logger.Warn("LogChanList is full, cap=, len=", cap(logChanList), len(logDbList.PlatformLog))
 				//	当无法写入的日志的时候，丢掉日志
 			}
 
 		}
 
 	}
+	//日志保存到文件发送到管道
 	if (config.IsFile || config.IsError) && !isDbAndFile {
 
-		if len(logChanList) < 2 || len(logFileList.PlatformLog) > 999 {
+		if len(logChanFileList) < 2 || len(logFileList.PlatformLog) > 999 || len(logFileList.UserLog) > 999 || len(logFileList.DeviceLog) > 999 {
 			select {
 			//正常写入
 			case logChanFileList <- logFileList:
 				logDbList = LogDataList{}
-
+				sendLogsFileChanTime = time.Now()
 			default:
-				fmt.Printf("logChanFileList is full, cap=%d, len=%d\n", cap(logChanFileList), len(logFileList.PlatformLog))
-
+				logger.Warn("logChanFileList is full, cap=, len=", cap(logChanFileList), len(logFileList.PlatformLog))
 			}
 
 		}
@@ -524,19 +531,93 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 	}
 
 }
+func periodicallySendLogsToChan() {
+
+	for {
+		now := time.Now()
+
+		if now.Sub(sendLogsDbAndFileChanTime) > time.Second*3 {
+			if len(logChanList) < 100 && (len(logDbList.PlatformLog) > 0 || len(logDbList.UserLog) > 0 || len(logDbList.DeviceLog) > 0) {
+				select {
+				//正常写入
+				case logChanList <- logDbList:
+
+					logDbList = LogDataList{}
+					sendLogsDbAndFileChanTime = time.Now()
+
+				default:
+					logger.Warn("LogChanList is full, cap=, len=", cap(logChanList), len(logDbList.PlatformLog))
+					//	当无法写入的日志的时候，丢掉日志
+				}
+
+			}
+		}
+		if now.Sub(sendLogsFileChanTime) > time.Second*3 {
+			if len(logChanFileList) < 100 && (len(logFileList.PlatformLog) > 0 || len(logFileList.UserLog) > 0 || len(logFileList.DeviceLog) > 0) {
+				select {
+				//正常写入
+				case logChanFileList <- logFileList:
+					logDbList = LogDataList{}
+					sendLogsFileChanTime = time.Now()
+				default:
+					logger.Warn("logChanFileList is full, cap=, len=", cap(logChanFileList), len(logFileList.PlatformLog))
+				}
+			}
+		}
+		time.Sleep(time.Second * 3)
+
+	}
+}
 
 // 后台写日志
 func writeLogToFile() {
 	for {
-		//如果获取不到日志则logTmp := <-f.logChan管道阻塞了
+
 		select {
 		case logTmpList := <-logChanFileList:
-			row := len(logTmpList.PlatformLog)
+			row := 0
 			//把所有日志保存文件
 			if logTmpList.LogConfigInfo.IsFile {
 				if isSpiteLog {
 					time.Sleep(time.Second * 2)
 				}
+				row = len(logTmpList.PlatformLog) + len(logTmpList.UserLog) + len(logTmpList.DeviceLog)
+
+				for _, log := range logTmpList.UserLog {
+					_, err := fmt.Fprintf(logFile.fileObj, log.Content)
+					if err != nil {
+						logger.Error("写入log文件失败，err=", err)
+						time.Sleep(time.Second * 1)
+						logFile.fileObj.Close()
+						logTmpList.LogConfigInfo.openLogFile()
+						_, err := fmt.Fprintf(logFile.fileObj, log.Content)
+						if err != nil {
+							logger.Error("关闭log后再打开log文件，再次写入log文件失败，放弃写入，err=", err)
+						} else {
+							logRowCount++
+						}
+
+					} else {
+						logRowCount++
+					}
+					if logRowCount >= logTmpList.LogConfigInfo.MaxLogLines {
+						//logger.Info("checkSize检查log是否需要切割，logRowCount=", logRowCount, "MaxLogLines=", logTmpList.LogConfigInfo.MaxLogLines, "isSpiteLog=", isSpiteLog)
+						if !isSpiteLog {
+							isSpiteLog = true
+							newFile, err := spiteFile(logFile.fileObj, logTmpList.LogConfigInfo.LogPath) //切割错误的日志文件
+							isSpiteLog = false
+							if err != nil {
+								logger.Error("切割错误日志文件出错，err=", err)
+								return
+							}
+							logRowCount = 0
+							logFile.fileObj = newFile
+						}
+
+					}
+
+				}
+
 				for _, log := range logTmpList.PlatformLog {
 					_, err := fmt.Fprintf(logFile.fileObj, log.Content)
 					if err != nil {
@@ -555,7 +636,41 @@ func writeLogToFile() {
 						logRowCount++
 					}
 					if logRowCount >= logTmpList.LogConfigInfo.MaxLogLines {
-						//logFile.fileObj.Close()
+						//logger.Info("checkSize检查log是否需要切割，logRowCount=", logRowCount, "MaxLogLines=", logTmpList.LogConfigInfo.MaxLogLines, "isSpiteLog=", isSpiteLog)
+						if !isSpiteLog {
+							isSpiteLog = true
+							newFile, err := spiteFile(logFile.fileObj, logTmpList.LogConfigInfo.LogPath) //切割错误的日志文件
+							isSpiteLog = false
+							if err != nil {
+								logger.Error("切割错误日志文件出错，err=", err)
+								return
+							}
+							logRowCount = 0
+							logFile.fileObj = newFile
+						}
+
+					}
+
+				}
+				for _, log := range logTmpList.DeviceLog {
+					_, err := fmt.Fprintf(logFile.fileObj, log.Content)
+					if err != nil {
+						logger.Error("写入log文件失败，err=", err)
+						time.Sleep(time.Second * 1)
+						logFile.fileObj.Close()
+						logTmpList.LogConfigInfo.openLogFile()
+						_, err := fmt.Fprintf(logFile.fileObj, log.Content)
+						if err != nil {
+							logger.Error("关闭log后再打开log文件，再次写入log文件失败，放弃写入，err=", err)
+						} else {
+							logRowCount++
+						}
+
+					} else {
+						logRowCount++
+					}
+					if logRowCount >= logTmpList.LogConfigInfo.MaxLogLines {
+						//logger.Info("checkSize检查log是否需要切割，logRowCount=", logRowCount, "MaxLogLines=", logTmpList.LogConfigInfo.MaxLogLines, "isSpiteLog=", isSpiteLog)
 						if !isSpiteLog {
 							isSpiteLog = true
 							newFile, err := spiteFile(logFile.fileObj, logTmpList.LogConfigInfo.LogPath) //切割错误的日志文件
@@ -686,7 +801,6 @@ func writeLogToDb() {
 		//存储日志到对应数据库表
 		select {
 		case logTmpList := <-logChanList:
-
 			//保存日志到数据库
 			switch logTmpList.LogConfigInfo.LogType {
 			case "user":
@@ -744,7 +858,6 @@ func writeLogToDbAndFile() {
 		//存储日志到对应数据库表
 		select {
 		case logTmpList := <-logChanList:
-
 			//保存日志到数据库
 			row := 0
 			switch logTmpList.LogConfigInfo.LogType {
@@ -755,6 +868,7 @@ func writeLogToDbAndFile() {
 					logger.Error("db.CreateInBatches error:", db.Error)
 					logger.Error("db.CreateInBatches RowsAffected:", db.RowsAffected)
 				}
+
 			case "platform":
 				row = len(logTmpList.PlatformLog)
 				db := model.Db.CreateInBatches(logTmpList.PlatformLog, row)
@@ -762,6 +876,7 @@ func writeLogToDbAndFile() {
 					logger.Error("db.CreateInBatches error:", db.Error)
 					logger.Error("db.CreateInBatches RowsAffected:", db.RowsAffected)
 				}
+
 			case "device":
 				row = len(logTmpList.DeviceLog)
 				db := model.Db.CreateInBatches(logTmpList.DeviceLog, len(logTmpList.DeviceLog))
@@ -769,6 +884,7 @@ func writeLogToDbAndFile() {
 					logger.Error("db.CreateInBatches error:", db.Error)
 					logger.Error("db.CreateInBatches RowsAffected:", db.RowsAffected)
 				}
+
 			default:
 				row = len(logTmpList.PlatformLog)
 				db := model.Db.CreateInBatches(logTmpList.PlatformLog, row)
@@ -776,13 +892,50 @@ func writeLogToDbAndFile() {
 					logger.Error("db.CreateInBatches error:", db.Error)
 					logger.Error("db.CreateInBatches RowsAffected:", db.RowsAffected)
 				}
-			}
 
+			}
 			//把所有日志保存文件
 			if logTmpList.LogConfigInfo.IsFile {
 				if isSpiteLog {
 					time.Sleep(time.Second * 2)
 				}
+				row = len(logTmpList.PlatformLog) + len(logTmpList.UserLog) + len(logTmpList.DeviceLog)
+
+				for _, log := range logTmpList.UserLog {
+					_, err := fmt.Fprintf(logFile.fileObj, log.Content)
+					if err != nil {
+						logger.Error("写入log文件失败，err=", err)
+						time.Sleep(time.Second * 1)
+						logFile.fileObj.Close()
+						logTmpList.LogConfigInfo.openLogFile()
+						_, err := fmt.Fprintf(logFile.fileObj, log.Content)
+						if err != nil {
+							logger.Error("关闭log后再打开log文件，再次写入log文件失败，放弃写入，err=", err)
+						} else {
+							logRowCount++
+						}
+
+					} else {
+						logRowCount++
+					}
+					if logRowCount >= logTmpList.LogConfigInfo.MaxLogLines {
+						//logger.Info("checkSize检查log是否需要切割，logRowCount=", logRowCount, "MaxLogLines=", logTmpList.LogConfigInfo.MaxLogLines, "isSpiteLog=", isSpiteLog)
+						if !isSpiteLog {
+							isSpiteLog = true
+							newFile, err := spiteFile(logFile.fileObj, logTmpList.LogConfigInfo.LogPath) //切割错误的日志文件
+							isSpiteLog = false
+							if err != nil {
+								logger.Error("切割错误日志文件出错，err=", err)
+								return
+							}
+							logRowCount = 0
+							logFile.fileObj = newFile
+						}
+
+					}
+
+				}
+
 				for _, log := range logTmpList.PlatformLog {
 					_, err := fmt.Fprintf(logFile.fileObj, log.Content)
 					if err != nil {
@@ -801,7 +954,41 @@ func writeLogToDbAndFile() {
 						logRowCount++
 					}
 					if logRowCount >= logTmpList.LogConfigInfo.MaxLogLines {
-						logger.Info("checkSize检查log是否需要切割，logRowCount=", logRowCount, "MaxLogLines=", logTmpList.LogConfigInfo.MaxLogLines, "isSpiteLog=", isSpiteLog)
+						//logger.Info("checkSize检查log是否需要切割，logRowCount=", logRowCount, "MaxLogLines=", logTmpList.LogConfigInfo.MaxLogLines, "isSpiteLog=", isSpiteLog)
+						if !isSpiteLog {
+							isSpiteLog = true
+							newFile, err := spiteFile(logFile.fileObj, logTmpList.LogConfigInfo.LogPath) //切割错误的日志文件
+							isSpiteLog = false
+							if err != nil {
+								logger.Error("切割错误日志文件出错，err=", err)
+								return
+							}
+							logRowCount = 0
+							logFile.fileObj = newFile
+						}
+
+					}
+
+				}
+				for _, log := range logTmpList.DeviceLog {
+					_, err := fmt.Fprintf(logFile.fileObj, log.Content)
+					if err != nil {
+						logger.Error("写入log文件失败，err=", err)
+						time.Sleep(time.Second * 1)
+						logFile.fileObj.Close()
+						logTmpList.LogConfigInfo.openLogFile()
+						_, err := fmt.Fprintf(logFile.fileObj, log.Content)
+						if err != nil {
+							logger.Error("关闭log后再打开log文件，再次写入log文件失败，放弃写入，err=", err)
+						} else {
+							logRowCount++
+						}
+
+					} else {
+						logRowCount++
+					}
+					if logRowCount >= logTmpList.LogConfigInfo.MaxLogLines {
+						//logger.Info("checkSize检查log是否需要切割，logRowCount=", logRowCount, "MaxLogLines=", logTmpList.LogConfigInfo.MaxLogLines, "isSpiteLog=", isSpiteLog)
 						if !isSpiteLog {
 							isSpiteLog = true
 							newFile, err := spiteFile(logFile.fileObj, logTmpList.LogConfigInfo.LogPath) //切割错误的日志文件
@@ -975,7 +1162,7 @@ func (config *LogConfig) checkLog() {
 func compareTime(id string) {
 	// 获取当前时间
 	now := time.Now()
-	logger.Info("now:", now, TraceIdPeriod[id], !now.Before(TraceIdPeriod[id]), id)
+	//logger.Info("now:", now, TraceIdPeriod[id], !now.Before(TraceIdPeriod[id]), id)
 	if !now.Before(TraceIdPeriod[id]) {
 		for i, traceId := range TraceIdList {
 			if id == traceId {
