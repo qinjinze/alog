@@ -495,7 +495,7 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 		}
 
 	}
-	logger.Debug("logChanList=", len(logChanList), "config.SaveDbType=", config.SaveDbType, "config.isDbAndFile=", isDbAndFile)
+
 	//日志保存数据库和文件发送到管道
 	if config.SaveDbType != "" || isDbAndFile {
 		if len(logChanList) < 2 || len(logDbList.PlatformLog) > 999 || len(logDbList.UserLog) > 999 || len(logDbList.DeviceLog) > 999 {
