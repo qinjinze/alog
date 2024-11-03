@@ -1,0 +1,13 @@
+.page-content .layui-tab-title {
+  background: #23272C url() 0 0 no-repeat !important;
+  border-bottom-color: #23272C !important;
+  color: rgb(153, 153, 153);
+}
+
+.page-content .layui-tab-title .layui-this {
+  background: #23272C url() 0 0 no-repeat !important;
+}
+
+.layui-tab-title .layui-this {
+  color: rgb(153, 153, 153) !important;
+}

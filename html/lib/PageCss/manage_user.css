@@ -1,0 +1,130 @@
+
+#page_wrapper{
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    font-size:14px;
+    /* overflow: hidden; */
+    display: flex;
+}
+#pageMain{
+    overflow:scroll;
+}
+/* #page_left{
+    height:100%;
+    width: calc(20% - 10px);
+    float: left;
+    background: forestgreen;
+    border: 1px solid #000000;
+} */
+#page_resize{
+    width: 2px;
+    height: 100%;
+    cursor: w-resize;
+    float: left;
+}
+/* #page_right{
+    height: 100%;
+    width: 100%;
+    border:1px solid #000000;
+} */
+.el-table thead {
+    font-weight: 500 !important;
+    color: #000 !important;
+}
+.el-form-item{
+    display: flex;
+    margin: 10px 0 10px 0;
+}
+.el-message-box{
+    /* max-width: 100% !important; */
+    /* width: 500px !important; */
+    /* height: 500px !important; */
+    /* overflow-y: scroll !important; */
+}
+#pageMain{
+    width: 100%;
+}
+
+.el-table th,  .el-table td {
+  padding: 10px 0 !important;
+  background-color: #eee !important;
+}
+
+.el-table tr, th {
+  background-color: #eee !important;
+}
+.el-table--border td{
+  border-right: 1px solid #ccc !important;
+}
+.el-table td{
+  border-bottom: 1px solid #ccc !important; 
+  cursor: pointer !important;
+} 
+.el-table th.is-leaf {
+  border-top: 1px solid #ccc !important;
+  border-right: 1px solid #ccc !important;
+}
+.el-checkbox__inner{
+  border: 1px solid #cecece !important;
+}
+.el-table--enable-row-transition .el-table__body td {
+  cursor: pointer !important;
+}
+.el-table__body, .el-table__footer, .el-table__header {
+  table-layout: fixed;
+  border-collapse: separate;
+  border-bottom: 1px solid #ccc !important;
+}
+.el-input--suffix .el-input__inner {
+  padding-left: 16px !important;
+  padding-right: 15px !important;
+}
+
+.el-input__inner {
+  border:1px solid #ccc !important;
+  height:33px !important;
+}
+/* .el-input .el-input__clear{
+  color:#000 !important;
+} */
+.el-textarea__inner{
+  border:1px solid #ccc !important;
+  padding:5px 22px !important;
+  line-height: 19px !important;
+}
+.el-textarea{
+  min-height:31px;
+  height:36px !important;
+}
+.primary{
+  margin-bottom:10px !important;
+  padding:9px 17px !important;
+}
+.el-form-item__error {
+  /* color: #F56C6C !important; */
+  color: red !important;
+    font-size: 12px !important;
+    line-height: 3px !important;
+    padding-top: 3px !important;
+    position: absolute !important;
+    top: 100% !important;
+    left: 10px !important;
+    width: 400px;
+}
+.el-button--success {
+  color: #FFF;
+  background-color: #409EFF !important;
+  border-color: #409EFF !important;
+}
+.el-button--danger {
+  color: #FFF;
+  background-color: #409EFF !important;
+  border-color: #409EFF !important;
+}
+.el-message-box {
+  width: 560px !important;
+}
+.el-input {
+  width: 200% !important;
+}

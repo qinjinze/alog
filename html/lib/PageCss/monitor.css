@@ -1,0 +1,95 @@
+#page_left{
+  height: 100%;
+  /* max-height: 642px; */
+    left:10px;
+    width: calc(30% - 10px);
+    float: left;
+    border: 1px solid #000000;
+    padding: 10px 10px 0 10px;
+}
+
+#page_resize{
+    width: 2px;
+    height: 100%;
+    cursor: w-resize;
+    float: left;
+}
+#page_right{
+  width: 100%;
+  /* max-height: 652px; */
+  height: 100%;
+  border: 1px solid #000000;
+}
+
+/* 地图 */
+#allmap{
+    width:100%;
+    height:100%;
+}
+/*  */
+.custom-tree-node {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  padding-right: 8px;
+}
+
+.devicesTree {
+  overflow-y: auto;
+}
+
+.el-message-box {
+  width: 550px;
+}
+
+.el-input-group__append,
+.el-input-group__prepend {
+  background-color: inherit;
+  padding: 0 10px;
+}
+
+.regionBox {
+  height: 200px;
+  border-top: solid 1px #606266;
+  border-right: solid 1px #606266;
+  border-bottom: solid 1px #606266;
+  
+}
+.regionBox-first {
+  border-left: solid 1px #606266;
+}
+.regionBox ul {
+  padding: 0;
+  margin: 0;
+}
+.regionBox li {
+  list-style: none;
+  cursor: pointer;
+}
+.regionBox li:hover {
+  background: #e6e6e6;
+}
+.regionChecked {
+  background: #e6e6e6;
+}
+.el-message-box {
+  width: 750px !important;
+}
+.lodingTip {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.lodingTip img {
+  width: 200px;
+  height: 115px;
+}
