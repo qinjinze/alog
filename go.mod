@@ -1,4 +1,5 @@
-module alog
+module github.com/qinjinze/alog
+
 
 go 1.22.5
 
