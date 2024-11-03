@@ -1,0 +1,98 @@
+ul li {
+  list-style: none;
+}
+
+#dashboard {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+#dashboard #dashboard_left {
+  /* width: 85%; */
+  display: flex;
+  flex-wrap: wrap;
+}
+
+#dashboard #dashboard_right {
+  margin-top: 0;
+  padding-left: 10px;
+}
+
+#dashboard #dashboard_left .equipment_quantity {
+  width: 260px;
+  background: #23272c;
+  height: 360px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+
+#dashboard #dashboard_left .equipment_usage {
+  width: 705px;
+  background: #23272c;
+  height: 360px;
+  margin-bottom: 10px;
+}
+
+#dashboard #dashboard_left .left_heatMap {
+  width: 976px;
+  background: #23272c;
+  height: 328px;
+  /* margin-bottom: 150px; */
+}
+
+#dashboard_right>li {
+  width: 376px;
+  background-color: #23272c;
+  margin-bottom: 10px;
+}
+
+#dashboard_right .for_data {
+  height: 200px;
+}
+
+#dashboard_right .product_area {
+  height: 200px;
+}
+
+#dashboard_right .background_log {
+  height: 300px;
+}
+
+.subtitle {
+  color: #9a9a9a;
+  padding: 5px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.subchart {
+  width: 100%;
+  height: 90%;
+}
+
+.subtab {
+  position: relative;
+  top: 25px;
+  display: inline-block;
+  z-index: 999;
+}
+
+.subtab ul {
+  display: flex;
+  padding: 0;
+  margin: 0;
+}
+
+.subtab li {
+  margin-right: 30px;
+  padding-bottom: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #999999;
+}
+
+.subtab .active {
+  border-bottom: solid 2px #0566eb;
+  border-radius: 2px;
+}

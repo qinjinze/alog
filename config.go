@@ -2,14 +2,15 @@ package alog
 
 import (
 	//json "github.com/json-iterator/go"
-	//_ "github.com/qinjinze/alog/model"
-	_ "alog/model"
+	_ "github.com/qinjinze/alog/model"
+	//_ "alog/model"
 	"gorm.io/gorm"
 )
 
 var TimeFormat string = "2006-01-02 15:04:05"
 var Level int = 0
 
+// 是否实时跟踪日志输出
 var IsTrace bool = false
 var TraceIdList []string = []string{}
 var IsColor bool = true

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="./lib/jquery/jquery-3.1.1.js"></script>
+    <script src="./lib/layjs/vue.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="./lib/element-ui@2.13.2/theme-chalk/index.css" rel="external nofollow">
+    <!-- 引入组件库 -->
+    <script src="./lib/element-ui@2.13.2/lib/index.js"></script>
+    <script src="./lib/vue-resource-1.3.4.js"></script>
+    <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js" ></script>
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js" ></script>
+    <style>
+
+
+        .gap {
+            width: 10px;
+        }
+
+
+        .block {
+            display: flex;
+            flex-direction: row;
+            /*justify-content: space-between;*/
+            justify-content: center;
+        }
+
+
+    </style>
+</head>
+<body>
+<!--v-cloak去除刷新页面闪烁出现的字体-->
+<div id="app" v-cloak>
+    <div style="width: 100%">
+        <!-- 表格上面按钮栏-->
+        <el-row type="flex" class="row-bg" style="display: flex;justify-content: space-between">
+            <div class="block">
+                <el-input placeholder="请输入用户名或设备编号" class="width" v-model="search" clearable remote>
+                </el-input>
+                <div class="gap"></div>
+                <el-button type="success" @click="traceRequest()" class="primary">开始</el-button>
+                <div class="gap"></div>
+                <el-button type="info" @click="stopTracking()" class="primary">停止</el-button>
+                <div class="gap"></div>
+                <el-button type="warning" @click="location.href='./index.html'" class="primary">刷新
+                </el-button>
+<!--                <div class="gap"></div>-->
+
+            </div>
+<!--            <div id="div1" style="width: 300px;border: red solid 1px "></div>-->
+            <div>
+                <div class="gap"></div>
+                <el-button type="danger" @click="clearTracking()" class="primary">清空</el-button>
+                <el-button class="download" type="primary" @click="exportData()">导出数据</el-button>
+            </div>
+        </el-row>
+
+        <div>
+            <!-- 按钮与表格之间的分界线-->
+            <!--<hr>-->
+            <!--表格 -->
+
+
+            <!-- 表格区域 -->
+            <div class="page_content">
+                <el-table :data="list" style="width: 100%">
+                    <el-table-column type="index" label="ID" min-width="3%"></el-table-column>
+
+                    <!--                        <el-table-column prop="Type" label="型号" width="100" :show-overflow-tooltip="true" :resizable="true"-->
+                    <!--                                         align="center"></el-table-column>-->
+                    <el-table-column prop="CreateTime" label="时间" min-width="14%" :show-overflow-tooltip="true"
+                                     :resizable="true"
+                                     align="center"></el-table-column>
+                    <el-table-column prop="Content" label="内容" min-width="73%" :show-overflow-tooltip="true"
+                                     :resizable="true"
+                                     align="center"></el-table-column>
+                    <el-table-column prop="Sn" label="编号" min-width="10%" :show-overflow-tooltip="true"
+                                     :resizable="true"
+                                     align="center"></el-table-column>
+                </el-table>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    //配置全局根域名，会自动和请求url拼接
+    // Vue.http.options.root = 'http://192.168.168.107/';
+    Vue.http.options.root = location.protocol + "//" + location.host;
+    // Vue.http.options.JSON='true';
+    // 如果我们通过全局配置了，请求的数据接口 根域名，则 ，在每次单独发起 http 请求的时候，请求的 url 路径，应该以相对路径开头，前面不能带 /  ，否则 不会启用根路径做拼接；
+    //Vue.http.options.root = 'http://121.36.200.22:8088/';
+    // 全局启用 emulateJSON 选项
+    // Vue.http.options.emulateJSON = true;
+    var vm = new Vue({
+        el: '#app',
+        data: {
+
+            //搜索内容
+            search: '',
+            //搜索前选择项
+            select: '',
+            //日期初始化值
+            value1: [new Date(2020, 9, 5, 10, 10), new Date(2020, 9, 6, 10, 10)],
+            list: [
+                {
+                    id: 0,
+                    Sn: '122123232123',
+                    Type: 'a1',
+                    Content: "websocket日志测试",
+                    CreateTime: "2024-01-21",
+                },
+            ],
+            socket : null,
+        },
+        created: function () {
+            //  this.getTableData()
+            //   this.$router.push({path: '/login'})
+            Vue.http.options.root = location.protocol + "//" + location.host;
+            console.log('Vue.http.options.root：' ,Vue.http.options.root)
+        },
+
+        watch: {},
+        methods: {
+
+            //请求跟踪异常日志
+            traceRequest() {
+                //校验成功则发起增删改查设备
+                console.log('发起请求准备1：' + this.select)
+                console.log('发起请求准备2：' + this.search)
+                if (this.search === '') {
+                    this.$message.error('请输入设备编号')
+                    return
+                }
+                var data = {
+                    'DoType': 'start',
+                    'Sn': this.search,
+                    'Name': localStorage.getItem("Name"),
+                    'Token': localStorage.getItem("Token")
+                }
+                var jsonData = JSON.stringify(data);
+                var self = this;
+                this.$http.post('trackingDevice', data).then(result => {
+                    console.log(result.body)
+                    var json = result.body
+
+                    this.$message.success('查询成功')
+                    if (json.Code === "1000") {
+                        // console.log(json.DeviceData);
+                        // console.log('长度' + json.DeviceData.length);
+                        // self.tableData = json.Data;
+                        self.list=[]
+                        self.startTracking(json.MqttUrl,self.search)
+                    }
+                    if (json.Code === "1001") {
+                        console.log('查询失败，返回的状态码：' + json.Message)
+                        this.$message.error('未登录')
+                        // self.$router.push({path: '/login'})
+                        window.onload = function () {
+                            window.location.href = Vue.http.options.root + '/#/login';
+                        }
+                        return
+                    }
+
+                    if (json.Code !== "1001"&&json.Code !== "1000") {
+                        console.log('查询失败，返回的状态码：' + json.Message)
+                        this.$message.error('查询失败')
+                        return
+                    }
+                })
+
+            },
+
+            //开始跟踪异常数据
+            startTracking(mqttUrl,sn) {
+                // var socket = null;
+                var wsuri = "ws://127.0.0.1:8080/logWebsocket?sn="+sn;
+
+                if (mqttUrl!==null&&mqttUrl!==''){
+                    wsuri = mqttUrl+"?sn="+sn;
+                }
+                var self =this
+                // var wsuri = "ws://127.0.0.1:8080/ws";
+                console.log("wsuri=",wsuri)
+                self.socket = new WebSocket(wsuri);
+                // 当WebSocket打开时发送消息
+                self.socket.addEventListener('open', function (event) {
+                    self.socket.send(sn);
+                });
+                // sock.send(sn);
+                self.socket.onmessage = function(e) {
+                    // var result = document.getElementById('result');
+                    // result.innerHTML = "结果为：" + e.data;
+                    console.log("e.data=",e.data)
+                    // var  now = self.formatDate(new Date(), "yyyy-MM-dd hh:mm:ss");
+                    // console.log("now=",now)
+                    self.list.push({
+                        id: 0,
+                        Sn: sn,
+                        Type: 'user',
+                        Content: e.data,
+                        CreateTime: new Date().toLocaleString(),
+                    })
+                };
+
+                self.socket.onopen = function(event) {
+                    console.log("WebSocket connected");
+                };
+
+                self.socket.onclose = function(event) {
+                    console.log("WebSocket disconnected. Attempting to reconnect...",event);
+                    setTimeout(self.startTracking(mqttUrl,sn), 1000); // 1 second later
+                };
+
+                self.socket.onerror = function(error) {
+                    console.error("WebSocket error observed:", error);
+                    setTimeout(self.startTracking(mqttUrl,sn), 1000); // 1 second later
+                };
+
+            },
+
+            //中国标准时间转换为年月日时分秒,指定00:00:00 或23:59:59或当下时分秒
+            formatDate(date, fmt) {
+                if(!date){
+                    return '';
+                }
+                if (/(y+)/.test(fmt)) {
+                    fmt = fmt.replace(RegExp.$1, (date.getFullYear() + '').substr(4 - RegExp.$1.length));
+                }
+                let o = {
+                    'M+': date.getMonth() + 1,
+                    'd+': date.getDate(),
+                    'h+': date.getHours(),
+                    'm+': date.getMinutes(),
+                    's+': date.getSeconds()
+                };
+                for (let k in o) {
+                    if (new RegExp(`(${k})`).test(fmt)) {
+                        let str = o[k] + '';
+                        fmt = fmt.replace(RegExp.$1, (RegExp.$1.length === 1) ? str : this.padLeftZero(str));
+                    }
+                }
+                return fmt;
+            },
+            padLeftZero(str) {
+                return ('00' + str).substr(str.length);
+            },
+
+             send() {
+        var msg = document.getElementById('content').value;
+        sock.send(msg);
+    },
+
+            //停止跟踪用户
+            stopTracking() {
+                //校验成功则发起增删改查设备
+                console.log('发起请求准备1：' + this.select)
+                console.log('发起请求准备2：' + this.search)
+
+                var data = {
+                    'DoType': 'stop',
+                    'Sn': this.search,
+                    'Name': localStorage.getItem("Name"),
+                    'Token': localStorage.getItem("Token")
+                }
+                // var jsonData = JSON.stringify(data);
+                var self = this;
+                this.$http.post('trackingUser', data).then(result => {
+                    console.log(result.body)
+                    var json = result.body
+
+                    this.$message.success('查询成功')
+                    if (json.Code === "1000") {
+                        // console.log(json.DeviceData);
+                        // console.log('长度' + json.DeviceData.length);
+                        // self.tableData = json.Data;
+                        console.log("停止跟踪日志------------------------------------------")
+                        // 连接关闭时触发
+                        self.socket.addEventListener('close', function (event) {
+                            console.log('WebSocket is closed now.');
+                            self.socket.close();
+                        });
+                    }
+                    if (json.Code === "1001") {
+                        console.log('查询失败，返回的状态码：' + json.Message)
+                        this.$message.error('未登录')
+                        return
+                    }
+
+                    if (json.Code !== "1001"&&!json.Code === "1000") {
+                        console.log('查询失败，返回的状态码：' + json.Message)
+                        this.$message.error('查询失败')
+                        return
+                    }
+                })
+            },
+            //清空数据
+            clearTracking() {
+                this.list = []
+            },
+            // 导出数据
+            exportData() {
+                console.log('导出数据')
+            }
+
+        }
+    })
+</script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+#page_wrapper{
+    width: 100%;
+    height: 100%;
+    /* position: fixed; */
+    font-size:14px;
+    overflow: hidden;
+    /* display: flex; */
+}
+#page_left{
+  height:100%;
+  left:10px;
+  width: calc(100% - 10px);
+  /* width:calc(30% - 10px); */
+  float: left;
+  /* background: forestgreen; */
+  border: 1px solid #000000;
+   
+}
+#page_resize{
+    width: 2px;
+    height: 100%;
+    cursor: w-resize;
+    float: left;
+}
+#page_right{
+    height: 100%;
+    width: 100%;
+    border:1px solid #000000;
+    /* background: tomato; */
+}
+.el-button+.el-button {
+  margin-left: 0px !important;
+}
+.el-table__body td{
+  cursor: pointer !important;
+}
+.el-table .cell, .el-table th div {
+  padding-right: 10px !important;
+  overflow: hidden !important;
+  text-overflow: normal !important;
+}
+.el-form-item__error {
+  color: red !important;
+  left: 10px !important;
+}

@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/qinjinze/alog"
-	//"alog"
 	"time"
 )
 
@@ -83,7 +82,7 @@ func main() {
 		log.LogType = "platform"
 		log.Uf("亮色字体%d, %s", id, time.Now())
 		//log.Df("白色字体%d, %s", 2, time.Now())
-		//log.If("蓝色字体%d, %s", 3, time.Now())
+		log.If("蓝色字体%d, %s", 3, time.Now())
 		//log.Wf("黄色字体%d, %s", 4, time.Now())
 		//log.Errf("红色字体%d, %s", 5, time.Now())
 		//log.Ff("粉色字体%d, %s", 6, time.Now())
@@ -105,7 +104,7 @@ func main() {
 		//log.Info("写入文件中", id, name)
 		//time.Sleep(1 * time.Second)
 		//break
-		//time.Sleep(3 * time.Second)
+		time.Sleep(3 * time.Second)
 
 	}
 	//logger.Info("测试日志库")
