@@ -4,9 +4,9 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 
-	//"github.com/qinjinze/alog/utils"
-	"alog/utils"
-	//_ "github.com/qinjinze/alog/utils"
+	"github.com/qinjinze/alog/utils"
+	//"alog/utils"
+	_ "github.com/qinjinze/alog/utils"
 	_ "alog/utils"
 	"github.com/beego/beego/orm"
 	"github.com/wonderivan/logger"
