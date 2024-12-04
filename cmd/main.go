@@ -37,14 +37,14 @@ func main() {
 
 	log.InitLogConfig()
 	id := 0
-	//name := "loge"
+	name := "loge"
 	//alog.TimeFormat = "2006-01-02 15:04:05.999999999 -0700 MST"
 	alog.IsColor = true
 	//utils.IsConsole = false
 	for {
 		id++
 		//other.Hello()
-		//alog.Debug("这是一条Debug日志%s", name)
+		alog.Debug("这是一条Debug日志%s", name)
 		//alog.Info("这是一条Info日志%s", name)
 		//alog.Warn("这是一条Warning日志%s", name)
 		//alog.Error("这是一条Error日志", id, name)
@@ -90,7 +90,7 @@ func main() {
 		////fmt.Println()
 		//log.Debug("白色字体", 2, time.Now())
 		////fmt.Println()
-		//log.Info("蓝色字体", 3, time.Now())
+		log.Info("蓝色字体", 3, time.Now())
 		////fmt.Println()
 		//log.Warn("黄色字体", 4, time.Now())
 		////fmt.Println()

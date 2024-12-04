@@ -35,8 +35,8 @@ type LogConfig struct {
 	ErrorLogPath     string   `json:"ErrorFilePath"`    // 初始日志文件路径   默认当前目录：./
 	ErrorLogName     string   `json:"ErrorFileName"`    // 初始日志文件路径 //输出错误日志为 error20201103-150405.log
 	ErrorDaily       bool     `json:"ErrorDaily"`       // 是否按天生成日志文件
-	MaxErrorLogLines int      `json:"MaxErrorLogLines"` // 日志文件最大行数          默认100000即10万
-	MaxErrorLogSize  int64    `json:"MaxErrorLogSize"`  // 日志文件最大尺寸,单位MB,当文件打开超过这个尺寸时，会重新创建一个日志文件 默认10M
+	MaxErrorLogLines int      `json:"MaxErrorLogLines"` // 错误日志文件最大行数          默认100000即10万
+	MaxErrorLogSize  int64    `json:"MaxErrorLogSize"`  // 错误日志文件最大尺寸,单位MB,当文件打开超过这个尺寸时，会重新创建一个日志文件 默认10M
 	ErrorLogZip      bool     `json:"ErrorLogZip"`      // 是否压缩成zip格式文件
 	Permit           string   `json:"Permit"`           // 新创建的日志文件权限属性
 	SaveDbType       string   `json:"SaveDbType"`       //日志保存类型保存：配置文件：mysql,redis,mongodb,postgresql,sqlite3,oracle,sqlserver,etcd
