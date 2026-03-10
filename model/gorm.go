@@ -1,7 +1,7 @@
 package model
 
 import (
-	pgDb "alog/init/common"
+	pgDb "github.com/qinjinze/alog/init/common"
 	"github.com/wonderivan/logger"
 	"gorm.io/gorm"
 	logorm "gorm.io/gorm/logger"

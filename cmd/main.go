@@ -1,7 +1,7 @@
 package main
 
 import (
-	"alog"
+	"github.com/qinjinze/alog"
 	"time"
 )
 

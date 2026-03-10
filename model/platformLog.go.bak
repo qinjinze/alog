@@ -1,11 +1,11 @@
 package model
 
 import (
-	"alog/utils"
+	"github.com/qinjinze/alog/utils"
 	"runtime"
 	"time"
 
-	_ "alog/utils"
+	_ "github.com/qinjinze/alog/utils"
 	"github.com/beego/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/wonderivan/logger"

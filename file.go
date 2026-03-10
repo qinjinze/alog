@@ -1,16 +1,16 @@
 package alog
 
 import (
-	"alog/model"
-	"alog/utils"
 	"bufio"
 	"crypto/tls"
 	"fmt"
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"github.com/fatih/color"
 	"github.com/gorilla/websocket"
-	//"alog/model"
-	//"alog/utils"
+	"github.com/qinjinze/alog/model"
+	"github.com/qinjinze/alog/utils"
+	//"github.com/qinjinze/alog/model"
+	//"github.com/qinjinze/alog/utils"
 	"github.com/wonderivan/logger"
 	"html/template"
 	"log"

@@ -1,11 +1,11 @@
 package model
 
 import (
-	"alog/utils"
-	_ "alog/utils"
 	"fmt"
 	"github.com/beego/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/qinjinze/alog/utils"
+	_ "github.com/qinjinze/alog/utils"
 	"github.com/wonderivan/logger"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

@@ -2,8 +2,8 @@ package alog
 
 import (
 	//json "github.com/json-iterator/go"
-	_ "alog/model"
-	//_ "alog/model"
+	_ "github.com/qinjinze/alog/model"
+	//_ "github.com/qinjinze/alog/model"
 	"gorm.io/gorm"
 )
 
