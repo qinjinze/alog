@@ -46,6 +46,7 @@ type LogConfig struct {
 	Page             string   `json:"Page"`             //请求页面
 	Api              string   `json:"Api"`              //请求接口
 	Function         string   `json:"Function"`         //记录函数名或者日志功能
+	RequestMethod    string   `json:"RequestMethod"`    //请求方法
 	RequestIp        string   `json:"RequestIp"`        //请求ip
 	ServerIp         string   `json:"ServerIp"`         //服务器ip
 	ServerName       string   `json:"ServerName"`       //服务器名称
