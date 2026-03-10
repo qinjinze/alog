@@ -3,7 +3,7 @@
 
 1.支持在linux、windows终端以及IDEA终端打印彩色日志，其它vscode等没有测试过
 
-2.支持日志写入数据库，大多数公司使用mysql,默认支持mysql，没有特殊要求，推荐使用postgresql或ES数据库。如果使用默认之外的数据库，请修改model.go和file.go文件，file.go文件807行或860行
+2.支持日志写入数据库，默认支持postgresql，没有特殊要求，推荐使用postgresql或ES数据库。如果使用默认之外的数据库，请修改model.go和file.go文件，file.go文件807行或860行
 
 3.支持写入文件根据大小和写入日志行数进行切割或按天切割，可以自定如果不自定会使用默认参数
 
