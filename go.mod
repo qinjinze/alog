@@ -1,7 +1,7 @@
 module github.com/qinjinze/alog
 
 go 1.23.0
-
+require alog v0.0.0-20260310131245-6392512bf6e9
 require (
 	github.com/beego/beego v1.12.14
 	github.com/eclipse/paho.mqtt.golang v1.5.0
