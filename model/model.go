@@ -15,19 +15,21 @@ import (
 
 // 实时监控的历史轨迹日志
 type DeviceLog struct {
-	Id         int64     `json:"DeviceLogId" gorm:"primaryKey"`                                                   //Id
-	Sn         string    `orm:"size(30);description(编号)" json:"Sn"`                                               //
-	Level      string    `orm:"size(10);NULL;description(日志等级名称)" json:"Level" gorm:"comment:日志等级名称"`             //
-	LevelInt   int       `orm:"size(2);NULL;description(日志等级)" json:"LevelInt" gorm:"comment:日志等级"`               //
-	Function   string    `orm:"size(100);NULL;description(功能模块)" json:"Function" gorm:"comment:功能模块"`             //
-	RequestId  string    `orm:"size(30);NULL;description(每次请求的唯一id)" json:"RequestId" gorm:"comment:每次请求的唯一id"`   //
-	Token      string    `orm:"size(255);NULL;description(设备登录Token)" json:"Token" gorm:"comment:设备登录Token"`      //
-	UserName   string    `orm:"size(255);NULL;description(设备唯一id或登录名)" json:"UserName" gorm:"comment:设备唯一id或登录名"` //
-	Content    string    `orm:"size(1024);NULL;description(日志内容)" json:"Content" gorm:"comment:日志内容;type:text"`   //
-	LogTime    time.Time `orm:"size(6);NULL;description(日志生成时间)" json:"LogTime" gorm:"comment:日志生成时间"`
-	CreateTime time.Time `orm:"size(6);auto_now_add;type(datetime);description(插入表中时间)" json:"CreateTime" gorm:"autoCreateTime;comment:插入表中时间"`
-	Seller     string    `orm:"size(255);NULL;description(商家简称：网店名称)" json:"Seller" gorm:"comment:商家简称：网店名称"` //
-	SellerId   string    `orm:"size(100);NULL;description(商家编号)" json:"SellerId" gorm:"comment:商家编号"`         //
+	Id            int64     `json:"DeviceLogId" gorm:"primaryKey"`                                                   //Id
+	Sn            string    `orm:"size(30);description(编号)" json:"Sn"`                                               //
+	Level         string    `orm:"size(10);NULL;description(日志等级名称)" json:"Level" gorm:"comment:日志等级名称"`             //
+	LevelInt      int       `orm:"size(2);NULL;description(日志等级)" json:"LevelInt" gorm:"comment:日志等级"`               //
+	Function      string    `orm:"size(100);NULL;description(功能模块)" json:"Function" gorm:"comment:功能模块"`             //
+	RequestId     string    `orm:"size(30);NULL;description(每次请求的唯一id)" json:"RequestId" gorm:"comment:每次请求的唯一id"`   //
+	Token         string    `orm:"size(255);NULL;description(设备登录Token)" json:"Token" gorm:"comment:设备登录Token"`      //
+	UserName      string    `orm:"size(255);NULL;description(设备唯一id或登录名)" json:"UserName" gorm:"comment:设备唯一id或登录名"` //
+	Content       string    `orm:"size(1024);NULL;description(日志内容)" json:"Content" gorm:"comment:日志内容;type:text"`   //
+	LogTime       time.Time `orm:"size(6);NULL;description(日志生成时间)" json:"LogTime" gorm:"comment:日志生成时间"`
+	RequestMethod string    `json:"RequestMethod" gorm:"comment:请求方法"` //请求方法
+	RequestIp     string    `json:"RequestIp" gorm:"comment:请求ip"`     //请求ip
+	ServerIp      string    `json:"ServerIp" gorm:"comment:服务器ip"`     //服务器ip
+	ServerName    string    `json:"ServerName" gorm:"comment:服务器名称"`   //服务器名称
+	CreateTime    time.Time `orm:"size(6);auto_now_add;type(datetime);description(插入表中时间)" json:"CreateTime" gorm:"autoCreateTime;comment:插入表中时间"`
 }
 
 // 管理后台日志
@@ -54,20 +56,29 @@ type PlatformLog struct {
 	Width             int       `orm:"size(30);NULL;description(窗口宽度)" json:"Width" gorm:"comment:窗口宽度"`               // 窗口宽度
 	Height            int       `orm:"size(30);NULL;description(窗口高度)" json:"Height" gorm:"comment:窗口高度"`              // 窗口高度
 	MobileePixelRatio string    `orm:"size(30);NULL;description(窗口像素比)" json:"MobileePixelRatio" gorm:"comment:窗口像素比"` // 手机、平板、电脑像素比，可要获取物理像素分辨率，我们还需要使用devicePixelRatio。 devicePixelRatio表示表示实际像素与逻辑像素的比例
+	RequestMethod     string    `json:"RequestMethod" gorm:"comment:请求方法"`                                             //请求方法
+	RequestIp         string    `json:"RequestIp" gorm:"comment:请求ip"`                                                 //请求ip
+	ServerIp          string    `json:"ServerIp" gorm:"comment:服务器ip"`                                                 //服务器ip
+	ServerName        string    `json:"ServerName" gorm:"comment:服务器名称"`                                               //服务器名称
 
 }
 
 // 错误日志
 type ErrorLog struct {
-	Id         int64     `json:"Id" gorm:"primaryKey"`                                                          //Id 	//Id
-	Level      string    `orm:"size(10);NULL;description(日志等级名称)" json:"Level" gorm:"comment:日志等级名称"`           //
-	LevelInt   int       `orm:"size(2);NULL;description(日志等级)" json:"LevelInt" gorm:"comment:日志等级"`             //
-	Function   string    `orm:"size(100);NULL;description(功能模块)" json:"Function" gorm:"comment:功能模块"`           //
-	RequestId  string    `orm:"size(30);NULL;description(每次请求的唯一id)" json:"RequestId" gorm:"comment:每次请求的唯一id"` //
-	Token      string    `orm:"size(255);NULL;description(用户登录Token)" json:"Token" gorm:"comment:用户登录Token"`    //
-	UserName   string    `orm:"size(255);NULL;description(账户)" json:"UserName" gorm:"comment:用户登录唯一id"`         //
-	Content    string    `orm:"size(1024);NULL;description(日志内容)" json:"Content" gorm:"comment:日志内容;type:text"` //
-	LogTime    time.Time `orm:"size(6);NULL;description(日志生成时间)" json:"LogTime" gorm:"comment:日志生成时间"`
+	Id            int64     `json:"Id" gorm:"primaryKey"`                                                          //Id 	//Id
+	Level         string    `orm:"size(10);NULL;description(日志等级名称)" json:"Level" gorm:"comment:日志等级名称"`           //
+	LevelInt      int       `orm:"size(2);NULL;description(日志等级)" json:"LevelInt" gorm:"comment:日志等级"`             //
+	Function      string    `orm:"size(100);NULL;description(功能模块)" json:"Function" gorm:"comment:功能模块"`           //
+	RequestId     string    `orm:"size(30);NULL;description(每次请求的唯一id)" json:"RequestId" gorm:"comment:每次请求的唯一id"` //
+	Token         string    `orm:"size(255);NULL;description(用户登录Token)" json:"Token" gorm:"comment:用户登录Token"`    //
+	UserName      string    `orm:"size(255);NULL;description(账户)" json:"UserName" gorm:"comment:用户登录唯一id"`         //
+	Content       string    `orm:"size(1024);NULL;description(日志内容)" json:"Content" gorm:"comment:日志内容;type:text"` //
+	LogTime       time.Time `orm:"size(6);NULL;description(日志生成时间)" json:"LogTime" gorm:"comment:日志生成时间"`
+	RequestMethod string    `json:"RequestMethod" gorm:"comment:请求方法"` //请求方法
+	RequestIp     string    `json:"RequestIp" gorm:"comment:请求ip"`     //请求ip
+	ServerIp      string    `json:"ServerIp" gorm:"comment:服务器ip"`     //服务器ip
+	ServerName    string    `json:"ServerName" gorm:"comment:服务器名称"`   //服务器名称
+
 	CreateTime time.Time `form:"create_time" json:"create_time" gorm:"autoCreateTime;comment:创建时间"`
 	Page       int       `form:"page" json:"Page" gorm:"-"`
 	Limit      int       `form:"limit" json:"Limit" gorm:"-"`
@@ -85,9 +96,7 @@ type UserLog struct {
 	Content          string    `orm:"size(1024);NULL;description(日志内容)" json:"Content" gorm:"comment:日志内容;type:text"` //
 	LogTime          time.Time `orm:"size(6);NULL;description(日志生成时间)" json:"LogTime" gorm:"comment:日志生成时间"`
 	CreateTime       time.Time `orm:"size(6);auto_now_add;type(datetime);description(插入表中时间)" json:"CreateTime" gorm:"autoCreateTime;comment:插入表中时间"`
-	Seller           string    `orm:"size(255);NULL;description(商家简称：网店名称)" json:"Seller" gorm:"comment:商家简称：网店名称"` //
-	SellerId         string    `orm:"size(100);NULL;description(商家编号)" json:"SellerId" gorm:"comment:商家编号"`         //
-	Page             string    `orm:"size(10);NULL;description(页面名称)" json:"Page" gorm:"comment:页面名称"`              //
+	Page             string    `orm:"size(10);NULL;description(页面名称)" json:"Page" gorm:"comment:页面名称"` //
 	Api              string    `orm:"size(10);NULL;description(请求接口)" json:"Api" gorm:"comment:请求接口"`
 	Latitude         string    `orm:"size(30);NULL;description(用户使用程序时所在经度)" json:"Latitude"`   // 用户经度
 	Longitude        string    `orm:"size(30);NULL;description(用户使用程序时所在纬度)" json:"Longitude"`  // 用户纬度
@@ -101,6 +110,11 @@ type UserLog struct {
 	Width            int       `orm:"size(30);NULL;description(窗口宽度)" json:"Width"`             // 窗口宽度
 	Height           int       `orm:"size(30);NULL;description(窗口高度)" json:"Height"`            // 窗口高度
 	DevicePixelRatio string    `orm:"size(30);NULL;description(窗口像素比)" json:"DevicePixelRatio"` // 手机、平板、电脑像素比
+	RequestMethod    string    `json:"RequestMethod" gorm:"comment:请求方法"`                       //请求方法
+	RequestIp        string    `json:"RequestIp" gorm:"comment:请求ip"`                           //请求ip
+	ServerIp         string    `json:"ServerIp" gorm:"comment:服务器ip"`                           //服务器ip
+	ServerName       string    `json:"ServerName" gorm:"comment:服务器名称"`                         //服务器名称
+
 }
 
 // 用户信息

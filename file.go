@@ -194,7 +194,7 @@ func (config *LogConfig) InitLogConfig() error {
 	if config.TimeFormat != "" {
 		TimeFormat = config.TimeFormat
 	}
-	config.Db = model.Db
+
 	config.LevelInt = ParseLogLevel("debug")
 	//周期性发送日志数据到管道channel
 	go periodicallySendLogsToChan()
@@ -355,19 +355,20 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 	switch config.LogType {
 	case "user":
 		message := model.UserLog{
-			Level:     level,
-			LevelInt:  levelInt,
-			Function:  config.Function,
-			RequestId: config.RequestId,
-			Token:     config.Token,
-			UserName:  config.UserName,
-			Content:   msg,
-			LogTime:   time.Now(),
-			//CreateTime:config
-			Seller:   config.Seller,
-			SellerId: config.SellerId,
-			Page:     config.Page,
-			Api:      config.Api,
+			Level:         level,
+			LevelInt:      levelInt,
+			Function:      config.Function,
+			RequestId:     config.RequestId,
+			Token:         config.Token,
+			UserName:      config.UserName,
+			Content:       msg,
+			LogTime:       time.Now(),
+			Page:          config.Page,
+			Api:           config.Api,
+			RequestMethod: config.RequestMethod,
+			RequestIp:     config.RequestIp,
+			ServerIp:      config.ServerIp,
+			ServerName:    config.ServerName,
 		}
 		logDbList.UserLog = append(logDbList.UserLog, message)
 		logDbList.LogConfigInfo = config
@@ -390,16 +391,20 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 	case "platform":
 
 		message := model.PlatformLog{
-			Level:     level,
-			LevelInt:  levelInt,
-			Function:  config.Function,
-			RequestId: config.RequestId,
-			Token:     config.Token,
-			UserName:  config.UserName,
-			Content:   msg,
-			LogTime:   time.Now(),
-			Page:      config.Page,
-			Api:       config.Api,
+			Level:         level,
+			LevelInt:      levelInt,
+			Function:      config.Function,
+			RequestId:     config.RequestId,
+			Token:         config.Token,
+			UserName:      config.UserName,
+			Content:       msg,
+			LogTime:       time.Now(),
+			Page:          config.Page,
+			Api:           config.Api,
+			RequestMethod: config.RequestMethod,
+			RequestIp:     config.RequestIp,
+			ServerIp:      config.ServerIp,
+			ServerName:    config.ServerName,
 		}
 
 		logDbList.PlatformLog = append(logDbList.PlatformLog, message)
@@ -422,18 +427,19 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 
 	case "device":
 		message := model.DeviceLog{
-			Level:     level,
-			LevelInt:  levelInt,
-			Function:  config.Function,
-			RequestId: config.RequestId,
-			Token:     config.Token,
-			UserName:  config.UserName,
-			Sn:        config.UserName,
-			Content:   msg,
-			LogTime:   time.Now(),
-			//CreateTime:config
-			Seller:   config.Seller,
-			SellerId: config.SellerId,
+			Level:         level,
+			LevelInt:      levelInt,
+			Function:      config.Function,
+			RequestId:     config.RequestId,
+			Token:         config.Token,
+			UserName:      config.UserName,
+			Sn:            config.UserName,
+			Content:       msg,
+			LogTime:       time.Now(),
+			RequestMethod: config.RequestMethod,
+			RequestIp:     config.RequestIp,
+			ServerIp:      config.ServerIp,
+			ServerName:    config.ServerName,
 		}
 
 		if IsTrace {
@@ -457,14 +463,18 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 
 	default:
 		message := model.ErrorLog{
-			Level:     level,
-			LevelInt:  levelInt,
-			Function:  config.Function,
-			RequestId: config.RequestId,
-			Token:     config.Token,
-			UserName:  config.UserName,
-			Content:   msg,
-			LogTime:   time.Now(),
+			Level:         level,
+			LevelInt:      levelInt,
+			Function:      config.Function,
+			RequestId:     config.RequestId,
+			Token:         config.Token,
+			UserName:      config.UserName,
+			Content:       msg,
+			LogTime:       time.Now(),
+			RequestMethod: config.RequestMethod,
+			RequestIp:     config.RequestIp,
+			ServerIp:      config.ServerIp,
+			ServerName:    config.ServerName,
 		}
 
 		if IsTrace {

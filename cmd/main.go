@@ -25,14 +25,7 @@ func main() {
 		Page:         "",         //页面
 		Api:          "",         //api名称
 		Function:     "",         //方法函数
-		Seller:       "",
-		SellerId:     "",
 		Token:        "",
-		DbHost:       "127.0.0.1",
-		DbPort:       "3306",
-		DbUserName:   "postgres",
-		DbPassword:   "Ktz&*1217",
-		DbName:       "platform_log",
 	}
 	//alog.Level = alog.INFO
 	log.InitLogConfig()

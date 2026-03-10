@@ -49,10 +49,4 @@ type LogConfig struct {
 	ServerIp         string `json:"ServerIp"`         //服务器ip
 	ServerName       string `json:"ServerName"`       //服务器名称
 	Token            string `json:"Token"`            //用户token
-	DbHost           string `json:"DbHost"`           //数据库主机地址
-	DbPort           string `json:"DbPort"`           //数据库端口
-	DbUserName       string `json:"DbUserName"`       //数据库用户名
-	DbPassword       string `json:"DbPassword"`       //数据库密码
-	DbName           string `json:"DbName"`           //数据库-库名称
-	//Db               *gorm.DB `json:"Db"`               //数据库连接对象
 }
