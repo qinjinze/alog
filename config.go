@@ -46,8 +46,9 @@ type LogConfig struct {
 	Page             string   `json:"Page"`             //请求页面
 	Api              string   `json:"Api"`              //请求接口
 	Function         string   `json:"Function"`         //记录函数名或者日志功能
-	Seller           string   `json:"Seller"`           //商家名称
-	SellerId         string   `json:"SellerId"`         //商家id
+	RequestIp        string   `json:"RequestIp"`        //请求ip
+	ServerIp         string   `json:"ServerIp"`         //服务器ip
+	ServerName       string   `json:"ServerName"`       //服务器名称
 	Token            string   `json:"Token"`            //用户token
 	DbHost           string   `json:"DbHost"`           //数据库主机地址
 	DbPort           string   `json:"DbPort"`           //数据库端口
