@@ -1,11 +1,11 @@
 package model
 
 import (
+	"alog/utils"
+	_ "alog/utils"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/qinjinze/alog/utils"
-	_ "github.com/qinjinze/alog/utils"
 	"github.com/beego/beego/orm"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/wonderivan/logger"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -42,21 +42,35 @@ type PlatformLog struct {
 	Content           string    `orm:"size(1024);NULL;description(日志内容)" json:"Content" gorm:"comment:日志内容;type:text"` //
 	LogTime           time.Time `orm:"size(6);NULL;description(日志生成时间)" json:"LogTime" gorm:"comment:日志生成时间"`
 	CreateTime        time.Time `orm:"size(6);auto_now_add;type(datetime);description(插入表中时间)" json:"CreateTime" gorm:"autoCreateTime;comment:插入表中时间"`
-	Seller            string    `orm:"size(255);NULL;description(商家简称：网店名称)" json:"Seller" gorm:"comment:商家简称：网店名称"` //
-	SellerId          string    `orm:"size(100);NULL;description(商家编号)" json:"SellerId" gorm:"comment:商家编号"`         //
-	Page              string    `orm:"size(10);NULL;description(页面名称)" json:"Page" gorm:"comment:页面名称"`              //
+	Page              string    `orm:"size(10);NULL;description(页面名称)" json:"Page" gorm:"comment:页面名称"` //
 	Api               string    `orm:"size(10);NULL;description(请求接口)" json:"Api" gorm:"comment:请求接口"`
-	Ip                string    `orm:"size(150);NULL;description(登录IP)" json:"Ip"`                //登录IP
-	Browser           string    `orm:"size(30);NULL;description(浏览器)" json:"Browser"`             //浏览器，小程序，APP
-	BrowserVersion    string    `orm:"size(30);NULL;description(浏览器版本)" json:"BrowserVersion"`    // 浏览器，小程序，APP 版本
-	System            string    `orm:"size(30);NULL;description(操作系统)" json:"System"`             //操作系统
-	SystemVersion     string    `orm:"size(30);NULL;description(系统版本)" json:"SystemVersion"`      //系统版本
-	SystemLanguage    string    `orm:"size(30);NULL;description(系统语言)" json:"SystemLanguage"`     //系统语言
-	Model             string    `orm:"size(30);NULL;description(硬件型号)" json:"Model"`              // 手机、平板、电脑型号
-	Width             int       `orm:"size(30);NULL;description(窗口宽度)" json:"Width"`              // 窗口宽度
-	Height            int       `orm:"size(30);NULL;description(窗口高度)" json:"Height"`             // 窗口高度
-	MobileePixelRatio string    `orm:"size(30);NULL;description(窗口像素比)" json:"MobileePixelRatio"` // 手机、平板、电脑像素比，可要获取物理像素分辨率，我们还需要使用devicePixelRatio。 devicePixelRatio表示表示实际像素与逻辑像素的比例
+	Ip                string    `orm:"size(150);NULL;description(登录IP)" json:"Ip" gorm:"comment:登录IP"`                 //登录IP
+	Browser           string    `orm:"size(30);NULL;description(浏览器)" json:"Browser" gorm:"comment:浏览器"`               //浏览器，小程序，APP
+	BrowserVersion    string    `orm:"size(30);NULL;description(浏览器版本)" json:"BrowserVersion" gorm:"comment:浏览器版本"`    // 浏览器，小程序，APP 版本
+	System            string    `orm:"size(30);NULL;description(操作系统)" json:"System" gorm:"comment:操作系统"`              //操作系统
+	SystemVersion     string    `orm:"size(30);NULL;description(系统版本)" json:"SystemVersion" gorm:"comment:系统版本"`       //系统版本
+	SystemLanguage    string    `orm:"size(30);NULL;description(系统语言)" json:"SystemLanguage" gorm:"comment:系统语言"`      //系统语言
+	Model             string    `orm:"size(30);NULL;description(硬件型号)" json:"Model" gorm:"comment:硬件型号"`               // 手机、平板、电脑型号
+	Width             int       `orm:"size(30);NULL;description(窗口宽度)" json:"Width" gorm:"comment:窗口宽度"`               // 窗口宽度
+	Height            int       `orm:"size(30);NULL;description(窗口高度)" json:"Height" gorm:"comment:窗口高度"`              // 窗口高度
+	MobileePixelRatio string    `orm:"size(30);NULL;description(窗口像素比)" json:"MobileePixelRatio" gorm:"comment:窗口像素比"` // 手机、平板、电脑像素比，可要获取物理像素分辨率，我们还需要使用devicePixelRatio。 devicePixelRatio表示表示实际像素与逻辑像素的比例
 
+}
+
+// 错误日志
+type ErrorLog struct {
+	Id         int64     `json:"Id" gorm:"primaryKey"`                                                          //Id 	//Id
+	Level      string    `orm:"size(10);NULL;description(日志等级名称)" json:"Level" gorm:"comment:日志等级名称"`           //
+	LevelInt   int       `orm:"size(2);NULL;description(日志等级)" json:"LevelInt" gorm:"comment:日志等级"`             //
+	Function   string    `orm:"size(100);NULL;description(功能模块)" json:"Function" gorm:"comment:功能模块"`           //
+	RequestId  string    `orm:"size(30);NULL;description(每次请求的唯一id)" json:"RequestId" gorm:"comment:每次请求的唯一id"` //
+	Token      string    `orm:"size(255);NULL;description(用户登录Token)" json:"Token" gorm:"comment:用户登录Token"`    //
+	UserName   string    `orm:"size(255);NULL;description(账户)" json:"UserName" gorm:"comment:用户登录唯一id"`         //
+	Content    string    `orm:"size(1024);NULL;description(日志内容)" json:"Content" gorm:"comment:日志内容;type:text"` //
+	LogTime    time.Time `orm:"size(6);NULL;description(日志生成时间)" json:"LogTime" gorm:"comment:日志生成时间"`
+	CreateTime time.Time `form:"create_time" json:"create_time" gorm:"autoCreateTime;comment:创建时间"`
+	Page       int       `form:"page" json:"Page" gorm:"-"`
+	Limit      int       `form:"limit" json:"Limit" gorm:"-"`
 }
 
 // C端用户日志
@@ -143,7 +157,6 @@ func InitModel(dbUserName, dbPassword, dbAddr, dbPort, dbName string) {
 	//		Colorful:                  true,          // Disable color(禁用颜色)设置彩色打印
 	//	},
 	//)
-
 
 	dsn := utils.G_mysql_dbUserName + ":" + utils.G_mysql_dbPassword + "@tcp(" + utils.G_mysql_addr + ":" + utils.G_mysql_port + ")/" + utils.DbName + "?charset=utf8mb4&parseTime=True&loc=Local"
 	Db, err = gorm.Open(mysql.New(mysql.Config{

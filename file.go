@@ -1,14 +1,14 @@
 package alog
 
 import (
+	"alog/model"
+	"alog/utils"
 	"bufio"
 	"crypto/tls"
 	"fmt"
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"github.com/fatih/color"
 	"github.com/gorilla/websocket"
-	"github.com/qinjinze/alog/model"
-	"github.com/qinjinze/alog/utils"
 	//"alog/model"
 	//"alog/utils"
 	"github.com/wonderivan/logger"
@@ -30,6 +30,7 @@ type LogDataList struct {
 	PlatformLog   []model.PlatformLog
 	UserLog       []model.UserLog
 	DeviceLog     []model.DeviceLog
+	ErrorLog      []model.ErrorLog
 }
 type LogDataTrace struct {
 	LogConfigInfo LogConfig
@@ -44,9 +45,9 @@ var static_mu *sync.Mutex = new(sync.Mutex)
 
 // var logChan = make(chan *logMsg, logDatas.ChanMaxSize)
 // var logChanFormat = make(chan *logMsg, logDatas.ChanMaxSize)
-var logChanList = make(chan LogDataList, 1000)
+var logChanList = make(chan LogDataList, 1024)
 var logChanTrace = make(chan LogDataTrace, 512)
-var logChanFileList = make(chan LogDataList, 1000)
+var logChanFileList = make(chan LogDataList, 1024)
 var logDbList LogDataList
 var logFileList LogDataList
 var logDataTrace LogDataTrace
@@ -75,7 +76,7 @@ var sendLogsFileChanTime = time.Now()
 func (config *LogConfig) InitLogConfig() error {
 	logger.Info("InitLogConfig初始化日志数据，config=%+v", config)
 	logger.Info("isWebsocket=", isWebsocket)
-	model.InitModel(config.DbUserName, config.DbPassword, config.DbHost, config.DbPort, config.DbName)
+	//model.InitModel(config.DbUserName, config.DbPassword, config.DbHost, config.DbPort, config.DbName)
 	var err error
 	if config.IsFile {
 		if utils.MaxLogSize != 0 {
@@ -397,11 +398,8 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 			UserName:  config.UserName,
 			Content:   msg,
 			LogTime:   time.Now(),
-			//CreateTime:config
-			Seller:   config.Seller,
-			SellerId: config.SellerId,
-			Page:     config.Page,
-			Api:      config.Api,
+			Page:      config.Page,
+			Api:       config.Api,
 		}
 
 		logDbList.PlatformLog = append(logDbList.PlatformLog, message)
@@ -458,7 +456,7 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 		}
 
 	default:
-		message := model.PlatformLog{
+		message := model.ErrorLog{
 			Level:     level,
 			LevelInt:  levelInt,
 			Function:  config.Function,
@@ -467,16 +465,10 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 			UserName:  config.UserName,
 			Content:   msg,
 			LogTime:   time.Now(),
-			//CreateTime:config
-			Seller:   config.Seller,
-			SellerId: config.SellerId,
-			Page:     config.Page,
-			Api:      config.Api,
 		}
 
 		if IsTrace {
 			for _, s := range TraceIdList {
-
 				if s == message.UserName {
 					logDataTrace.Content = msg
 					logDataTrace.LogConfigInfo = config
@@ -486,11 +478,11 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 			}
 		}
 
-		logDbList.PlatformLog = append(logDbList.PlatformLog, message)
+		logDbList.ErrorLog = append(logDbList.ErrorLog, message)
 		logDbList.LogConfigInfo = config
 
 		if (config.IsFile || config.IsError) && !isDbAndFile {
-			logFileList.PlatformLog = append(logFileList.PlatformLog, message)
+			logFileList.ErrorLog = append(logFileList.ErrorLog, message)
 			logFileList.LogConfigInfo = config
 		}
 
@@ -532,39 +524,41 @@ func (config LogConfig) writeLog(msg, level string, levelInt int) {
 
 }
 func periodicallySendLogsToChan() {
-
 	for {
-		now := time.Now()
+		//now := time.Now()
 
-		if now.Sub(sendLogsDbAndFileChanTime) > time.Second*3 {
-			if len(logChanList) < 100 && (len(logDbList.PlatformLog) > 0 || len(logDbList.UserLog) > 0 || len(logDbList.DeviceLog) > 0) {
-				select {
-				//正常写入
-				case logChanList <- logDbList:
+		//if now.Sub(sendLogsDbAndFileChanTime) > time.Second*3 {
+		//	if len(logChanList) < 100 && (len(logDbList.PlatformLog) > 0 || len(logDbList.UserLog) > 0 || len(logDbList.DeviceLog) > 0) {
+		if len(logChanList) < 1024 {
+			select {
+			//正常写入
+			case logChanList <- logDbList:
+				logger.Info("logChanList=%+v", logChanList)
+				logDbList = LogDataList{}
+				sendLogsDbAndFileChanTime = time.Now()
 
-					logDbList = LogDataList{}
-					sendLogsDbAndFileChanTime = time.Now()
+			default:
+				logger.Warn("LogChanList is full, cap=, len=", cap(logChanList), len(logDbList.PlatformLog))
+				//	当无法写入的日志的时候，丢掉日志
+			}
 
-				default:
-					logger.Warn("LogChanList is full, cap=, len=", cap(logChanList), len(logDbList.PlatformLog))
-					//	当无法写入的日志的时候，丢掉日志
-				}
-
+		}
+		//}
+		//if now.Sub(sendLogsFileChanTime) > time.Second*3 {
+		//if len(logChanFileList) < 100 && (len(logFileList.PlatformLog) > 0 || len(logFileList.UserLog) > 0 || len(logFileList.DeviceLog) > 0) {
+		if len(logChanFileList) < 1024 {
+			select {
+			//正常写入
+			case logChanFileList <- logFileList:
+				logger.Info("logChanFileList=%+v", logChanFileList)
+				logDbList = LogDataList{}
+				sendLogsFileChanTime = time.Now()
+			default:
+				logger.Warn("logChanFileList is full, cap=, len=", cap(logChanFileList), len(logFileList.PlatformLog))
 			}
 		}
-		if now.Sub(sendLogsFileChanTime) > time.Second*3 {
-			if len(logChanFileList) < 100 && (len(logFileList.PlatformLog) > 0 || len(logFileList.UserLog) > 0 || len(logFileList.DeviceLog) > 0) {
-				select {
-				//正常写入
-				case logChanFileList <- logFileList:
-					logDbList = LogDataList{}
-					sendLogsFileChanTime = time.Now()
-				default:
-					logger.Warn("logChanFileList is full, cap=, len=", cap(logChanFileList), len(logFileList.PlatformLog))
-				}
-			}
-		}
-		time.Sleep(time.Second * 3)
+		//}
+		time.Sleep(time.Millisecond * 300)
 
 	}
 }
@@ -804,25 +798,31 @@ func writeLogToDb() {
 			//保存日志到数据库
 			switch logTmpList.LogConfigInfo.LogType {
 			case "user":
-				db := model.Db.CreateInBatches(logTmpList.UserLog, len(logTmpList.UserLog))
+				db := model.UserLogDb.CreateInBatches(logTmpList.UserLog, len(logTmpList.UserLog))
 				if db.Error != nil {
 					logger.Error("db.CreateInBatches error:", db.Error)
 					logger.Error("db.CreateInBatches RowsAffected:", db.RowsAffected)
 				}
 			case "platform":
-				db := model.Db.CreateInBatches(logTmpList.PlatformLog, len(logTmpList.PlatformLog))
+				db := model.PlatformLogDb.CreateInBatches(logTmpList.PlatformLog, len(logTmpList.PlatformLog))
 				if db.Error != nil {
 					logger.Error("db.CreateInBatches error:", db.Error)
 					logger.Error("db.CreateInBatches RowsAffected:", db.RowsAffected)
 				}
 			case "device":
-				db := model.Db.CreateInBatches(logTmpList.DeviceLog, len(logTmpList.DeviceLog))
+				db := model.DeviceLogDb.CreateInBatches(logTmpList.DeviceLog, len(logTmpList.DeviceLog))
+				if db.Error != nil {
+					logger.Error("db.CreateInBatches error:", db.Error)
+					logger.Error("db.CreateInBatches RowsAffected:", db.RowsAffected)
+				}
+			case "error":
+				db := model.ErrorLogDb.CreateInBatches(logTmpList.ErrorLog, len(logTmpList.ErrorLog))
 				if db.Error != nil {
 					logger.Error("db.CreateInBatches error:", db.Error)
 					logger.Error("db.CreateInBatches RowsAffected:", db.RowsAffected)
 				}
 			default:
-				db := model.Db.CreateInBatches(logTmpList.PlatformLog, len(logTmpList.PlatformLog))
+				db := model.PlatformLogDb.CreateInBatches(logTmpList.PlatformLog, len(logTmpList.PlatformLog))
 				if db.Error != nil {
 					logger.Error("db.CreateInBatches error:", db.Error)
 					logger.Error("db.CreateInBatches RowsAffected:", db.RowsAffected)
@@ -863,7 +863,7 @@ func writeLogToDbAndFile() {
 			switch logTmpList.LogConfigInfo.LogType {
 			case "user":
 				row = len(logTmpList.UserLog)
-				db := model.Db.CreateInBatches(logTmpList.UserLog, row)
+				db := model.UserLogDb.CreateInBatches(logTmpList.UserLog, row)
 				if db.Error != nil {
 					logger.Error("db.CreateInBatches error:", db.Error)
 					logger.Error("db.CreateInBatches RowsAffected:", db.RowsAffected)
@@ -871,7 +871,7 @@ func writeLogToDbAndFile() {
 
 			case "platform":
 				row = len(logTmpList.PlatformLog)
-				db := model.Db.CreateInBatches(logTmpList.PlatformLog, row)
+				db := model.PlatformLogDb.CreateInBatches(logTmpList.PlatformLog, row)
 				if db.Error != nil {
 					logger.Error("db.CreateInBatches error:", db.Error)
 					logger.Error("db.CreateInBatches RowsAffected:", db.RowsAffected)
@@ -879,20 +879,25 @@ func writeLogToDbAndFile() {
 
 			case "device":
 				row = len(logTmpList.DeviceLog)
-				db := model.Db.CreateInBatches(logTmpList.DeviceLog, len(logTmpList.DeviceLog))
+				db := model.DeviceLogDb.CreateInBatches(logTmpList.DeviceLog, len(logTmpList.DeviceLog))
 				if db.Error != nil {
 					logger.Error("db.CreateInBatches error:", db.Error)
 					logger.Error("db.CreateInBatches RowsAffected:", db.RowsAffected)
 				}
-
+			case "error":
+				row = len(logTmpList.ErrorLog)
+				db := model.ErrorLogDb.CreateInBatches(logTmpList.ErrorLog, row)
+				if db.Error != nil {
+					logger.Error("db.CreateInBatches error:", db.Error)
+					logger.Error("db.CreateInBatches RowsAffected:", db.RowsAffected)
+				}
 			default:
 				row = len(logTmpList.PlatformLog)
-				db := model.Db.CreateInBatches(logTmpList.PlatformLog, row)
+				db := model.PlatformLogDb.CreateInBatches(logTmpList.PlatformLog, row)
 				if db.Error != nil {
 					logger.Error("db.CreateInBatches error:", db.Error)
 					logger.Error("db.CreateInBatches RowsAffected:", db.RowsAffected)
 				}
-
 			}
 			//把所有日志保存文件
 			if logTmpList.LogConfigInfo.IsFile {
@@ -1305,7 +1310,7 @@ func (config *LogConfig) console(levelInt int, level string, format interface{},
 }
 
 // 未知级别日志
-func (config *LogConfig) Unknown(format interface{}, a ...interface{}) {
+func (config LogConfig) Unknown(format interface{}, a ...interface{}) {
 	//write(DEBUG, format, a...)
 	//config.console(UNKNOWN, "Unknown", format, a...)
 	if UNKNOWN >= Level {
@@ -1324,7 +1329,7 @@ func (config *LogConfig) Unknown(format interface{}, a ...interface{}) {
 }
 
 // 用户级调试日志
-func (config *LogConfig) Debug(format interface{}, a ...interface{}) {
+func (config LogConfig) Debug(format interface{}, a ...interface{}) {
 	//write(DEBUG, format, a...)
 	//config.console(DEBUG, "Debug", format, a...)
 	if DEBUG >= Level {
@@ -1343,7 +1348,7 @@ func (config *LogConfig) Debug(format interface{}, a ...interface{}) {
 }
 
 // 用户级信息日志
-func (config *LogConfig) Info(format interface{}, a ...interface{}) {
+func (config LogConfig) Info(format interface{}, a ...interface{}) {
 	//write(INFO, format, a...)
 	//config.console(INFO, "Info", format, a...)
 	if INFO >= Level {
@@ -1363,7 +1368,7 @@ func (config *LogConfig) Info(format interface{}, a ...interface{}) {
 }
 
 // 用户级警告
-func (config *LogConfig) Warn(format interface{}, a ...interface{}) {
+func (config LogConfig) Warn(format interface{}, a ...interface{}) {
 	//write(WARN, format, a...)
 	//config.console(WARN, "Warn", format, a...)
 	if WARN >= Level {
@@ -1382,7 +1387,7 @@ func (config *LogConfig) Warn(format interface{}, a ...interface{}) {
 }
 
 // 用户级错误
-func (config *LogConfig) Error(format interface{}, a ...interface{}) {
+func (config LogConfig) Error(format interface{}, a ...interface{}) {
 
 	//write(ERROR, format, a...)
 	//config.console(ERROR, "Error", format, a...)
@@ -1402,7 +1407,7 @@ func (config *LogConfig) Error(format interface{}, a ...interface{}) {
 }
 
 // 致命错误
-func (config *LogConfig) Fatal(format interface{}, a ...interface{}) {
+func (config LogConfig) Fatal(format interface{}, a ...interface{}) {
 
 	//write(FATAL, format, a...)
 	//config.console(FATAL, "Fatal", format, a...)
@@ -1422,7 +1427,7 @@ func (config *LogConfig) Fatal(format interface{}, a ...interface{}) {
 }
 
 // 系统级危险，比如权限出错，访问异常等
-func (config *LogConfig) Crit(format interface{}, a ...interface{}) {
+func (config LogConfig) Crit(format interface{}, a ...interface{}) {
 	//write(CRIT, format, a...)
 	//config.console(CRIT, "Crit", format, a...)
 	if CRIT >= Level {
@@ -1441,7 +1446,7 @@ func (config *LogConfig) Crit(format interface{}, a ...interface{}) {
 }
 
 // 系统级警告，比如数据库访问异常，配置文件出错等
-func (config *LogConfig) Alrt(format interface{}, a ...interface{}) {
+func (config LogConfig) Alrt(format interface{}, a ...interface{}) {
 
 	//write(ALRT, format, a...)
 	//config.console(ALRT, "Alrt", format, a...)
@@ -1461,7 +1466,7 @@ func (config *LogConfig) Alrt(format interface{}, a ...interface{}) {
 }
 
 // 系统级紧急，比如磁盘出错，内存异常，网络不可用等
-func (config *LogConfig) Emer(format interface{}, a ...interface{}) {
+func (config LogConfig) Emer(format interface{}, a ...interface{}) {
 
 	//write(EMER, format, a...)
 	//config.console(EMER, "Emer", format, a...)
@@ -1481,7 +1486,7 @@ func (config *LogConfig) Emer(format interface{}, a ...interface{}) {
 }
 
 // 入侵警告
-func (config *LogConfig) Invade(format interface{}, a ...interface{}) {
+func (config LogConfig) Invade(format interface{}, a ...interface{}) {
 	//write(INVADE, format, a...)
 	//config.console(INVADE, "Invade", format, a...)
 	if INVADE >= Level {
@@ -1519,7 +1524,7 @@ func (config *LogConfig) consoleFormat(levelInt int, level, format string, a ...
 }
 
 // Unknown Format
-func (config *LogConfig) Uf(format string, a ...interface{}) {
+func (config LogConfig) Uf(format string, a ...interface{}) {
 	//writeFormat(UNKNOWN, format, a...)
 	//config.consoleFormat(UNKNOWN, "Unknown", format, a...)
 	if UNKNOWN >= Level {
@@ -1537,7 +1542,7 @@ func (config *LogConfig) Uf(format string, a ...interface{}) {
 }
 
 // Debug Format
-func (config *LogConfig) Df(format string, a ...interface{}) {
+func (config LogConfig) Df(format string, a ...interface{}) {
 	//writeFormat(DEBUG, format, a...)
 	//config.consoleFormat(DEBUG, "Debug", format, a...)
 	if DEBUG >= Level {
@@ -1555,7 +1560,7 @@ func (config *LogConfig) Df(format string, a ...interface{}) {
 }
 
 // Info Format
-func (config *LogConfig) If(format string, a ...interface{}) {
+func (config LogConfig) If(format string, a ...interface{}) {
 
 	//writeFormat(INFO, format, a...)
 	//config.consoleFormat(INFO, "Info", format, a...)
@@ -1574,7 +1579,7 @@ func (config *LogConfig) If(format string, a ...interface{}) {
 }
 
 // Warn Format
-func (config *LogConfig) Wf(format string, a ...interface{}) {
+func (config LogConfig) Wf(format string, a ...interface{}) {
 	//writeFormat(WARN, format, a...)
 	//config.consoleFormat(WARN, "Warn", format, a...)
 	if WARN >= Level {
@@ -1592,7 +1597,7 @@ func (config *LogConfig) Wf(format string, a ...interface{}) {
 }
 
 // Error Format
-func (config *LogConfig) Errf(format string, a ...interface{}) {
+func (config LogConfig) Errf(format string, a ...interface{}) {
 
 	//writeFormat(ERROR, format, a...)
 	//config.consoleFormat(ERROR, "Error", format, a...)
@@ -1611,7 +1616,7 @@ func (config *LogConfig) Errf(format string, a ...interface{}) {
 }
 
 // Fatal Format
-func (config *LogConfig) Ff(format string, a ...interface{}) {
+func (config LogConfig) Ff(format string, a ...interface{}) {
 
 	//writeFormat(FATAL, format, a...)
 	//config.consoleFormat(FATAL, "Fatal", format, a...)
@@ -1630,7 +1635,7 @@ func (config *LogConfig) Ff(format string, a ...interface{}) {
 }
 
 // Crit Format  系统级危险，比如权限出错，访问异常等
-func (config *LogConfig) Cf(format string, a ...interface{}) {
+func (config LogConfig) Cf(format string, a ...interface{}) {
 	//writeFormat(CRIT, format, a...)
 	//config.consoleFormat(CRIT, "Crit", format, a...)
 	if CRIT >= Level {
@@ -1648,7 +1653,7 @@ func (config *LogConfig) Cf(format string, a ...interface{}) {
 }
 
 // Alrt Format  系统级警告，比如数据库访问异常，配置文件出错等
-func (config *LogConfig) Af(format string, a ...interface{}) {
+func (config LogConfig) Af(format string, a ...interface{}) {
 
 	//writeFormat(ALRT, format, a...)
 	//config.consoleFormat(ALRT, "Alrt", format, a...)
@@ -1667,7 +1672,7 @@ func (config *LogConfig) Af(format string, a ...interface{}) {
 }
 
 // 系统级紧急，比如磁盘出错，内存异常，网络不可用等
-func (config *LogConfig) EmerF(format string, a ...interface{}) {
+func (config LogConfig) EmerF(format string, a ...interface{}) {
 	//writeFormat(EMER, format, a...)
 	//config.consoleFormat(EMER, "Emer", format, a...)
 	if EMER >= Level {
@@ -1685,7 +1690,7 @@ func (config *LogConfig) EmerF(format string, a ...interface{}) {
 }
 
 // Invade Format，入侵警告
-func (config *LogConfig) InvadeF(format string, a ...interface{}) {
+func (config LogConfig) InvadeF(format string, a ...interface{}) {
 	//writeFormat(INVADE, format, a...)
 	//config.consoleFormat(INVADE, "Invade", format, a...)
 	if INVADE >= Level {

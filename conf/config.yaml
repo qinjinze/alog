@@ -1,0 +1,54 @@
+postgres:
+  default:
+    host: '106.52.222.196'
+    port: 54321
+    database: 'platform'
+    username: 'postgres'
+    password: 'Ktz&*1217'
+  platform_log:
+    host: '106.52.222.196'
+    port: 54321
+    database: 'platform_log'
+    username: 'postgres'
+    password: 'Ktz&*1217'
+  api:
+    host: '106.52.222.196'
+    port: 54321
+    database: 'api_data'
+    username: 'postgres'
+    password: 'Ktz&*1217'
+
+  api_log:
+    host: '106.52.222.196'
+    port: 54321
+    database: 'api_log'
+    username: 'postgres'
+    password: 'Ktz&*1217'
+
+  device_log:
+    host: '106.52.222.196'
+    port: 54321
+    database: 'device_log'
+    username: 'postgres'
+    password: 'Ktz&*1217'
+
+  error_log:
+    host: '106.52.222.196'
+    port: 54321
+    database: 'error_log'
+    username: 'postgres'
+    password: 'Ktz&*1217'
+
+
+redis:
+  db: 0
+  addr: '106.52.222.196'
+  port: 16379
+  password: 'xiaobai'
+
+mqtt:
+  #  host: '114.132.187.204'
+  host: '101.91.148.139'
+  port: 11883
+  username: 'yuetv'
+  password: 'yuetv2024.'

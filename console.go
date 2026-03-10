@@ -3,6 +3,7 @@ package alog
 import (
 	"fmt"
 	"github.com/fatih/color"
+	"github.com/wonderivan/logger"
 	"time"
 )
 
@@ -41,6 +42,7 @@ func Unknown(format interface{}, a ...interface{}) {
 func Debug(format interface{}, a ...interface{}) {
 
 	//console(DEBUG, "Debug", format, a...)
+	logger.Info("DEBUG=%d,Level=%d", DEBUG, Level)
 	if DEBUG >= Level {
 		now := time.Now().Format(TimeFormat)
 		abc := fmt.Sprintln(a...)

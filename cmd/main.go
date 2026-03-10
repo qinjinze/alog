@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/qinjinze/alog"
+	"alog"
 	"time"
 )
 
@@ -18,7 +18,7 @@ func main() {
 		IsError:      false,
 		ErrorLogPath: "errorlog.log",
 		ErrorLogName: "./errorlog.log",
-		SaveDbType:   "mysql",
+		SaveDbType:   "postgresql",
 		LogType:      "platform", //user,platform、device
 		UserName:     "",         //用户名
 		RequestId:    "",         //每次API请求生成唯一ID
@@ -30,11 +30,11 @@ func main() {
 		Token:        "",
 		DbHost:       "127.0.0.1",
 		DbPort:       "3306",
-		DbUserName:   "",
-		DbPassword:   "",
-		DbName:       "",
+		DbUserName:   "postgres",
+		DbPassword:   "Ktz&*1217",
+		DbName:       "platform_log",
 	}
-
+	//alog.Level = alog.INFO
 	log.InitLogConfig()
 	id := 0
 	name := "loge"
@@ -44,7 +44,7 @@ func main() {
 	for {
 		id++
 		//other.Hello()
-		alog.Debug("这是一条Debug日志%s", name)
+		alog.Debug("这是一条Debug日志", name)
 		//alog.Info("这是一条Info日志%s", name)
 		//alog.Warn("这是一条Warning日志%s", name)
 		//alog.Error("这是一条Error日志", id, name)
@@ -104,7 +104,7 @@ func main() {
 		//log.Info("写入文件中", id, name)
 		//time.Sleep(1 * time.Second)
 		//break
-		time.Sleep(3 * time.Second)
+		time.Sleep(100 * time.Millisecond)
 
 	}
 	//logger.Info("测试日志库")
