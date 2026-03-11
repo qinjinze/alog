@@ -84,6 +84,7 @@ func main() {
 		//log.Debug("白色字体", 2, time.Now())
 		////fmt.Println()
 		log.Info("蓝色字体", 3, time.Now())
+		log.Errf("红色字体%d, %s", 5, time.Now())
 		////fmt.Println()
 		//log.Warn("黄色字体", 4, time.Now())
 		////fmt.Println()
